@@ -2,4 +2,20 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  h2 Contents
+  ul.contents
+    each c in contents
+      li
+        form(action="update", method="post")
+          input(type='hidden' name='id' value=c.id)
+
+        span.content= c.user_name
+
+        form(action="delete", method="post")
+          input(type='hidden' name='id' value=c.id)
+          button.delete X
+
+  //- div.newtask
+  //-   form(action="create", method="post")
+  //-     input(type='text' name='task')
+  //-     button(type='submit') Add
