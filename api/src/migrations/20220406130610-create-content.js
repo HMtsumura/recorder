@@ -16,14 +16,19 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      title_id: {
+      title: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
+      },
+      color_code: {
+        allowNull: false,
+        type: Sequelize.STRING
       },
       comment: {
         type: Sequelize.STRING
       },
       record_ymd: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       createdAt: {
