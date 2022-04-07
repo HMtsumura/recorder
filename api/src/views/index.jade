@@ -9,7 +9,8 @@ block content
         form(action="update", method="post")
           input(type='hidden' name='id' value=c.id)
 
-        span.content= c.user_name
+        span.content= c.comment
+        div.content= c.color_code
 
         form(action="delete", method="post")
           input(type='hidden' name='id' value=c.id)
