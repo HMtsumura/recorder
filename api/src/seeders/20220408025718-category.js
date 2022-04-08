@@ -16,11 +16,6 @@ module.exports = {
       user_id: 1,
       createdAt: new Date(),
       updatedAt: new Date()
-    },{
-      category_name: 'category_test2',
-      user_id: 1,
-      createdAt: new Date(),
-      updatedAt: new Date()
     }]);
   },
 
@@ -31,6 +26,5 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-     return queryInterface.bulkDelete('Categories', null, {});
   }
 };

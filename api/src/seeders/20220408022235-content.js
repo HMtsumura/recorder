@@ -11,14 +11,22 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-     return queryInterface.bulkInsert('Categories', [{
-      category_name: 'category_test1',
+     return queryInterface.bulkInsert('Contents', [{
       user_id: 1,
+      category_id: 1,
+      title: 'title test1',
+      comment: 'test1',
+      color_code: '#ffa500',
+      record_ymd: '20220408',
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      category_name: 'category_test2',
       user_id: 1,
+      category_id: 1,
+      title: 'title test2',
+      comment: 'test2',
+      color_code: '#008080',
+      record_ymd: '20220408',
       createdAt: new Date(),
       updatedAt: new Date()
     }]);
@@ -31,6 +39,5 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-     return queryInterface.bulkDelete('Categories', null, {});
   }
 };

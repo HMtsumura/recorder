@@ -4,33 +4,26 @@ const db = require('../models');
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
-  contents = await db.sequelize.query(`select 
-                                          co.id
-                                        , co.comment
-                                        , ca.category_name
-                                        , t.title_name
-                                        , t.color_code                              
+  const contents = await db.sequelize.query(`select 
+                                              co.id
+                                            , co.title
+                                            , co.color_code
+                                            , co.comment
+                                            , co.record_ymd
+                                            , u.user_name
+                                            , ca.category_name
                                         from  Contents AS co
-                                        ,     Categories AS ca
                                         ,     Users AS u
-                                        ,     Titles As t
-                                        where co.category_id = ca.id
-                                        and   co.user_id = u.id
-                                        and   co.title_id = t.id;`);
-  // const contents = await db.Content.findAll({
-  //   where: {
-  //     id: [1]
-    // },
-  // include: [{
-  //   model: db.Category,
-  //   required: false
-  // }]
-// });
-  const categories = await db.sequelize.query('select * from Categories'); 
+                                        ,     Categories ca
+                                        where co.user_id = u.id
+                                        and   co.category_id = ca.id;`);
+
+  const categories = await db.sequelize.query('select * from Categories');
+  console.log(categories);
   Object.keys(contents).forEach(key =>{
     console.log(key);
     contents[key].forEach(content=>{
-      console.log(content)
+      console.log(contents[0]);
     });
   });
 

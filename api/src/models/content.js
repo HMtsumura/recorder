@@ -11,13 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Content.belongsTo(models.Category);
+      // Content.belongsTo(models.Category);
     }
   }
   Content.init({
     user_id: DataTypes.INTEGER,
     category_id: DataTypes.INTEGER,
-    title_id: DataTypes.INTEGER,
+    title: DataTypes.STRING,
+    color_code: DataTypes.STRING,
     comment: DataTypes.STRING,
     record_ymd: DataTypes.STRING
   }, {
