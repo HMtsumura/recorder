@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-
+// TODO 変数名考える必要あり
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
 
