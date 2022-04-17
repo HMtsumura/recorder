@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useState} from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -8,6 +8,7 @@ import Modal from '@mui/material/Modal';
 import {DatePicker} from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { Color, ColorPicker, createColor } from 'material-ui-color';
 import { threadId } from 'worker_threads';
 
 const style = {
@@ -26,12 +27,30 @@ const style = {
 // TODO 変数名考える必要あり
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
+
+const palette = {
+  red: '#ff0000',
+  blue: '#0000ff',
+  green: '#00ff00',
+  yellow: 'yellow',
+  cyan: 'cyan',
+  lime: 'lime',
+  gray: 'gray',
+  orange: 'orange',
+  purple: 'purple',
+  black: 'black',
+  white: 'white',
+  pink: 'pink',
+  darkblue: 'darkblue',
+};
+
 interface State{
   result: Array<recordObj>,
   categories: Array<categoryObj>,
   color_code: String,
   open: boolean,
-  date: any
+  date: any,
+  color: Color
 }
 
 interface recordObj{
@@ -40,20 +59,23 @@ interface recordObj{
   color_code: string,
   comment: string,
   category_name: string,
-  record_ymd: string,
+  record_ymd: string
 }
 
 interface categoryObj{
   id: string,
   category_name: string
 }
+
+// const [color, setColor] = useState(createColor("red"));
 class App extends Component {
   state: State ={
     result: [],
     categories: [],
     color_code: '',
     open: false,
-    date: null
+    date: null,
+    color: createColor("red")
   }
   constructor(props: any, state: State) {
     super(props);
@@ -62,7 +84,8 @@ class App extends Component {
       categories: [],
       color_code: '',
       open: false,
-      date: null
+      date: null,
+      color: createColor("red")
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -125,6 +148,10 @@ class App extends Component {
     this.setState({date: newValue});
   }
 
+  handleColorChange = (newValue: Color)=>{
+    console.log(newValue);
+    this.setState({color: newValue});
+  }
   render() {
     return (
       <div>
@@ -164,6 +191,11 @@ class App extends Component {
                 renderInput={(params: any) => <TextField {...params} />}
               />
             </LocalizationProvider>
+            <div>
+              <ColorPicker 
+                value={this.state.color} 
+                onChange={this.handleColorChange} />
+            </div>
             <div>
               <TextField 
                 id="title-field" 
