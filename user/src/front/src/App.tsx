@@ -1,13 +1,35 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import Grid from '@mui/material/Grid';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import {DatePicker, DatePickerProps} from '@mui/x-date-pickers';
+
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+
 // TODO 変数名考える必要あり
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
-
 interface State{
   result: Array<recordObj>,
   categories: Array<categoryObj>,
-  color_code: String
+  color_code: String,
+  open: boolean,
 }
 
 interface recordObj{
@@ -28,6 +50,7 @@ class App extends Component {
     result: [],
     categories: [],
     color_code: '',
+    open: false
   }
   constructor(props: any, state: State) {
     super(props);
@@ -35,10 +58,12 @@ class App extends Component {
       result: [],
       categories: [],
       color_code: '',
+      open: false
     };
 
     this.handleClick = this.handleClick.bind(this);
     this.handleChange= this.handleChange.bind(this);
+    this.handleDateChange= this.handleDateChange.bind(this);
   }
 
   handleClick() {
@@ -72,7 +97,8 @@ class App extends Component {
       this.setState({
         status: true,
         result: res.data[0],
-        categories: res.data[1]
+        categories: res.data[1],
+        open: true
       });
     })      .catch((e) => {
       console.error(e);
@@ -82,6 +108,19 @@ class App extends Component {
       });
     });
   }
+  
+  handleOpen = () => { 
+    this.setState({open: true});
+  };
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
+
+  handleDateChange = (newValue: Date|null)=>{
+    this.setState({date: newValue});
+  }
+
   render() {
     return (
       <div>
@@ -100,6 +139,43 @@ class App extends Component {
             <li>{elem.record_ymd}</li>
           </ul>
         ))}
+        <Button onClick={this.handleOpen}>Open modal</Button>
+        <Modal
+          open={this.state.open}
+          onClose={this.handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Text in a modal
+            </Typography>
+            <div>
+              <TextField 
+                id="title-field" 
+                label="Title"
+                required
+              >
+              </TextField>
+            </div>
+            <TextField
+                id="comment-field"
+                label="Comment"
+                multiline
+                rows={5}
+                defaultValue=""
+            />
+            <div>
+              <Button 
+              fullWidth 
+              variant="contained" 
+              onClick={this.handleOpen}
+              >
+                登録
+              </Button>
+            </div>
+          </Box>
+        </Modal>
       </div>
     );
   }
