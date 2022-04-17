@@ -5,10 +5,10 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
-import { ColorPicker } from 'mui-color';
-// import Grid from '@mui/material/Grid';
+import {DatePicker} from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import {DatePicker, DatePickerProps} from '@mui/x-date-pickers';
+import { threadId } from 'worker_threads';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -31,6 +31,7 @@ interface State{
   categories: Array<categoryObj>,
   color_code: String,
   open: boolean,
+  date: any
 }
 
 interface recordObj{
@@ -51,7 +52,8 @@ class App extends Component {
     result: [],
     categories: [],
     color_code: '',
-    open: false
+    open: false,
+    date: null
   }
   constructor(props: any, state: State) {
     super(props);
@@ -59,7 +61,8 @@ class App extends Component {
       result: [],
       categories: [],
       color_code: '',
-      open: false
+      open: false,
+      date: null
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -89,7 +92,7 @@ class App extends Component {
 
   handleChange(e: React.ChangeEvent<HTMLSelectElement>){
     const selectedId: string|null = e.target[e.target.selectedIndex].getAttribute('id');
-    axios.get(categorizedContents, {
+    axios.get(categorizedContents,{
       params: {
         id: selectedId
       }
@@ -149,8 +152,18 @@ class App extends Component {
         >
           <Box sx={style}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Text in a modal
+              記録
             </Typography>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="date"
+                value={this.state.date}
+                onChange={(newValue: any) => {
+                  this.setState({date: newValue});
+                }}
+                renderInput={(params: any) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
             <div>
               <TextField 
                 id="title-field" 
