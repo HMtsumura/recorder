@@ -9,6 +9,8 @@ import {DatePicker} from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Color, ColorPicker, createColor } from 'material-ui-color';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import FormControl from '@mui/material/FormControl';
 import { threadId } from 'worker_threads';
 
 const style = {
@@ -23,10 +25,10 @@ const style = {
   p: 4,
 };
 
-
 // TODO 変数名考える必要あり
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
+const registContent = 'http://localhost:3000/contents/regist';
 
 const palette = {
   red: '#ff0000',
@@ -67,7 +69,6 @@ interface categoryObj{
   category_name: string
 }
 
-// const [color, setColor] = useState(createColor("red"));
 class App extends Component {
   state: State ={
     result: [],
@@ -84,7 +85,7 @@ class App extends Component {
       categories: [],
       color_code: '',
       open: false,
-      date: null,
+      date: new Date(),
       color: createColor("red")
     };
 
@@ -124,10 +125,9 @@ class App extends Component {
       this.setState({
         status: true,
         result: res.data[0],
-        categories: res.data[1],
-        open: true
+        categories: res.data[1]
       });
-    })      .catch((e) => {
+    }).catch((e) => {
       console.error(e);
       this.setState({
         status: false,
@@ -152,6 +152,40 @@ class App extends Component {
     console.log(newValue);
     this.setState({color: newValue});
   }
+
+  handleRegist = (event: React.FormEvent<HTMLFormElement>)=>{
+    event.preventDefault();
+    const formattedDate = [
+      this.state.date.getFullYear(),
+      ('0' + (this.state.date.getMonth() + 1)).slice(-2),
+      ('0' + this.state.date.getDate()).slice(-2)
+    ].join('');
+    const formData = new FormData(event.currentTarget);
+    console.log({
+      title: formData.get('title'),
+      comment: formData.get('comment'),
+      color: this.state.color.hex,
+      date: formattedDate
+    });
+    axios.get(registContent,{
+      params: {
+        user_id: '1',
+        title: formData.get('title'),
+        comment: formData.get('comment'),
+        color_code: this.state.color.hex,
+        record_ymd: formattedDate,
+        category_id: '1'
+      }
+    }).then((res)=>{
+      console.log(res);
+    }).catch((e)=>{
+      console.error(e);
+      this.setState({
+        status: false,
+        result: e,
+      });
+    });
+  }
   render() {
     return (
       <div>
@@ -170,6 +204,7 @@ class App extends Component {
             <li>{elem.record_ymd}</li>
           </ul>
         ))}
+        <AddCircleIcon onClick={this.handleOpen}></AddCircleIcon>
         <Button onClick={this.handleOpen}>Open modal</Button>
         <Modal
           open={this.state.open}
@@ -177,49 +212,54 @@ class App extends Component {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              記録
-            </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                label="date"
-                value={this.state.date}
-                onChange={(newValue: any) => {
-                  this.setState({date: newValue});
-                }}
-                renderInput={(params: any) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-            <div>
-              <ColorPicker 
+          <Box component="form" onSubmit={this.handleRegist} noValidate sx={ style }>
+            {/* <FormControl> */}
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                記録
+              </Typography>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="date"
+                  value={this.state.date}
+                  onChange={(newValue: any) => {
+                    this.setState({date: newValue});
+                  }}
+                  renderInput={(params: any) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+              <ColorPicker
                 value={this.state.color} 
-                onChange={this.handleColorChange} />
-            </div>
-            <div>
-              <TextField 
-                id="title-field" 
-                label="Title"
-                required
-              >
-              </TextField>
-            </div>
-            <TextField
-                id="comment-field"
-                label="Comment"
-                multiline
-                rows={5}
-                defaultValue=""
-            />
-            <div>
-              <Button 
-              fullWidth 
-              variant="contained" 
-              onClick={this.handleOpen}
-              >
-                登録
-              </Button>
-            </div>
+                onChange={this.handleColorChange}
+                palette={palette}
+                hideTextfield/>
+              <div>
+                <TextField 
+                  id="title-field" 
+                  label="Title"
+                  name="title"
+                  required
+                >
+                </TextField>
+              </div>
+              <TextField
+                  id="comment-field"
+                  label="Comment"
+                  name="comment"
+                  multiline
+                  rows={5}
+                  defaultValue=""
+              />
+              <div>
+                <Button
+                fullWidth
+                type="submit"
+                variant="contained" 
+                onClick={this.handleOpen}
+                >
+                  登録
+                </Button>
+              </div>
+            {/* </FormControl> */}
           </Box>
         </Modal>
       </div>
