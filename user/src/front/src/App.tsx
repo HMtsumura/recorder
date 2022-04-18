@@ -53,6 +53,7 @@ const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
 const registContent = 'http://localhost:3000/contents/regist';
 const editContent = 'http://localhost:3000/contents/edit';
+const deleteContent = 'http://localhost:3000/contents/delete';
 
 const palette = {
   red: '#ff0000',
@@ -331,7 +332,22 @@ class App extends Component {
   }
 
   handleDelete=()=>{
-
+    console.log(this.state.edit_id);
+    axios.get(deleteContent,{
+      params: {
+        content_id: this.state.edit_id,
+      }
+    }).then((res)=>{
+      this.handleCloseEditForm();
+      this.getAllContents();
+      console.log(res);
+    }).catch((e)=>{
+      console.error(e);
+      this.setState({
+        status: false,
+        result: e,
+      });
+    });
   }
   render() {
     return (

@@ -105,4 +105,18 @@ router.get('/edit', async function(req, res, next) {
     console.error(e);
   }
 });
+
+router.get('/delete', async function(req, res, next) {
+  const content_id = req.query.content_id;
+  try{
+    const deleteContent = await db.sequelize.query(`
+                                DELETE  FROM Contents
+                                WHERE id  = ${content_id};`,
+                                {type: sequelize.QueryTypes.DELETE});
+    
+    res.send('DELETED');
+  }catch(e){
+    console.error(e);
+  }
+});
 module.exports = router;
