@@ -19,6 +19,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+
 import { threadId } from 'worker_threads';
 
 const style = {
@@ -49,6 +52,7 @@ const style = {
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
 const registContent = 'http://localhost:3000/contents/regist';
+const editContent = 'http://localhost:3000/contents/edit';
 
 const palette = {
   red: '#ff0000',
@@ -75,11 +79,13 @@ interface State{
   color: Color,
   selected_category: string,
   selected_category_id: string,
+  edit_id: string,
   edit_title: string,
   edit_color: Color,
   edit_comment: string,
   edit_ymd: any,
-  edit_selected_category: string
+  edit_selected_category: string,
+  edit_selected_category_id: string
 }
 
 interface recordObj{
@@ -106,11 +112,13 @@ class App extends Component {
     color: createColor("red"),
     selected_category: "",
     selected_category_id: "",
+    edit_id: "",
     edit_title: "",
     edit_ymd: null,
     edit_comment: "",
     edit_selected_category: "",
-    edit_color: createColor("red")
+    edit_color: createColor("red"),
+    edit_selected_category_id: "",
   }
   constructor(props: any, state: State) {
     super(props);
@@ -123,11 +131,13 @@ class App extends Component {
       color: createColor("red"),
       selected_category: "",
       selected_category_id: "",
+      edit_id: "",
       edit_title: "",
       edit_ymd: null,
       edit_comment: "",
       edit_selected_category: "",
-      edit_color: createColor("red")
+      edit_color: createColor("red"),
+      edit_selected_category_id: ""
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -196,12 +206,26 @@ class App extends Component {
     this.setState({color: newColor});
   }
 
+  handleEditColorChange = (newColor: Color)=>{
+    this.setState({edit_color: newColor});
+  }
+
   handleCategorySelect = (event: SelectChangeEvent, child: any)=>{
     console.log(child.props.id);
     this.setState(
       { 
         selected_category: event.target.value
       , selected_category_id: child.props.id
+      }
+    );
+  }
+
+  handleEditCategorySelect = (event: SelectChangeEvent, child: any)=>{
+    console.log(child.props.id);
+    this.setState(
+      { 
+        edit_selected_category: event.target.value
+      , edit_selected_category_id: child.props.id
       }
     );
   }
@@ -246,29 +270,72 @@ class App extends Component {
       const y = record.record_ymd.substring(0,4);
       const m = record.record_ymd.substring(4,6);
       const d = record.record_ymd.substring(6,8);
-      console.log(`${d}/${m}/${y}`);
       this.setState({
         openEditForm: true,
+        edit_id: record.id,
         edit_title: record.title,
         edit_comment: record.comment,
         edit_color: createColor(record.color_code),
-        edit_ymd: `${d}/${m}/${y}`,
-        edit_selected_category: record.category_name
+        edit_ymd: `${m}/${d}/${y}`,
+        edit_selected_category: record.category_name,
+        edit_selected_category_id: record.id
       });
-      console.log(this.state);
   }
 
   handleCloseEditForm=()=>{
       this.setState({openEditForm: false});
   }
 
-  handleEdit=()=>{
+  handleEdit=(event: React.FormEvent<HTMLFormElement>)=>{
+    event.preventDefault();
+    let ymd;
+    if(typeof this.state.edit_ymd === 'string'){
+      const split_ymd = this.state.edit_ymd.split('/');
+      ymd = split_ymd[2] + split_ymd[0] + split_ymd[1];
+    }else{
+      const y = this.state.edit_ymd.getFullYear();
+      const m = ('0' + (this.state.edit_ymd.getMonth() + 1)).slice(-2);
+      const d = ('0' + this.state.edit_ymd.getDate()).slice(-2);
+      ymd = y + m + d;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    console.log({
+      content_id: this.state.edit_id,
+      title: formData.get('edit_title'),
+      comment: formData.get('edit_comment'),
+      color: this.state.edit_color.hex,
+      date: ymd,
+      category_id: this.state.edit_selected_category_id
+    });
+    axios.get(editContent,{
+      params: {
+        content_id: this.state.edit_id,
+        title: formData.get('edit_title'),
+        comment: formData.get('edit_comment'),
+        color_code: this.state.edit_color.hex,
+        record_ymd: ymd,
+        category_id: this.state.edit_selected_category_id
+      }
+    }).then((res)=>{
+      this.handleCloseEditForm();
+      this.getAllContents();
+      console.log(res);
+    }).catch((e)=>{
+      console.error(e);
+      this.setState({
+        status: false,
+        result: e,
+      });
+    });
+  }
+
+  handleDelete=()=>{
 
   }
   render() {
     return (
       <div>
-        <button onClick={this.handleClick}>Get Data</button>
         <select onChange={(e) => this.handleChange(e)}>
         {this.state.categories.map((category: categoryObj)=>(
           <option id={category.id} value={category.category_name}>{category.category_name}</option>
@@ -284,11 +351,6 @@ class App extends Component {
               </ListItemButton>
             </ListItem>
           </List>
-          // <ul>
-          //   <li>{elem.id}</li>
-          //   <li>{elem.category_name}</li>
-          //   <li style={{backgroundColor: elem.color_code}}></li>
-          // </ul>
         ))}
         <AddCircleIcon onClick={this.handleOpenRegitForm}></AddCircleIcon>
         <Button onClick={this.handleOpenRegitForm}>Open modal</Button>
@@ -353,8 +415,7 @@ class App extends Component {
                 <Button
                 fullWidth
                 type="submit"
-                variant="contained" 
-                // onClick={this.handleOpenRegitForm}
+                variant="contained"
                 >
                   登録
                 </Button>
@@ -390,7 +451,7 @@ class App extends Component {
                 name="selected_category"
                 value={this.state.edit_selected_category}
                 label="category"
-                onChange={this.handleCategorySelect}
+                onChange={this.handleEditCategorySelect}
               >
                 {this.state.categories.map((category: categoryObj)=>(
                   <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
@@ -398,14 +459,14 @@ class App extends Component {
               </Select>
               <ColorPicker
                 value={this.state.edit_color} 
-                onChange={this.handleColorChange}
+                onChange={this.handleEditColorChange}
                 palette={palette}
                 hideTextfield/>
               <div>
                 <TextField 
                   id="title-field" 
                   label="Title"
-                  name="title"
+                  name="edit_title"
                   defaultValue={this.state.edit_title}
                   required
                 >
@@ -414,7 +475,7 @@ class App extends Component {
               <TextField
                   id="comment-field"
                   label="Comment"
-                  name="comment"
+                  name="edit_comment"
                   multiline
                   rows={5}
                   defaultValue={this.state.edit_comment}
@@ -422,9 +483,19 @@ class App extends Component {
               <div>
                 <Button
                 fullWidth
-                type="submit"
+                type="button"
                 variant="contained" 
-                onClick={this.handleOpenRegitForm}
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={this.handleDelete}
+                >
+                  削除
+                </Button>
+                <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                startIcon={<ChangeCircleIcon />}
                 >
                   更新
                 </Button>

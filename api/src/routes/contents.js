@@ -68,12 +68,41 @@ router.get('/regist', async function(req, res, next) {
     ('0' + today.getDate()).slice(-2)
   ].join('');;
   try{
-  const registContent = await db.sequelize.query(`INSERT INTO Contents(user_id, category_id, title, color_code, comment, record_ymd, createdAt, updatedAt)VALUES(${user_id}, ${category_id}, '${title}', '#${color_code}', '${comment}', '${record_ymd}', '${createdAt}', '${createdAt}');`,{type: sequelize.QueryTypes.INSERT});
-  console.log(registContent);
-  res.send([registContent[0]]);
-                                                }catch(e){
-                                                  console.error(e);
-                                                }
+    const registContent = await db.sequelize.query(`INSERT INTO Contents(user_id, category_id, title, color_code, comment, record_ymd, createdAt, updatedAt)VALUES(${user_id}, ${category_id}, '${title}', '#${color_code}', '${comment}', '${record_ymd}', '${createdAt}', '${createdAt}');`,{type: sequelize.QueryTypes.INSERT});
+    console.log(registContent);
+    res.send([registContent[0]]);
+  }catch(e){
+    console.error(e);
+  }
+});
 
+router.get('/edit', async function(req, res, next) {
+  const content_id = req.query.content_id;
+  const title = req.query.title;
+  const comment = req.query.comment;
+  const category_id = req.query.category_id;
+  const record_ymd =  req.query.record_ymd;
+  const color_code = req.query.color_code;
+  const today = new Date();
+  const updatedAt = [
+    today.getFullYear(),
+    ('0' + (today.getMonth() + 1)).slice(-2),
+    ('0' + today.getDate()).slice(-2)
+  ].join('');;
+  try{
+    const editContent = await db.sequelize.query(`
+                                UPDATE Contents 
+                                SET category_id = ${category_id},
+                                    title = '${title}',
+                                    color_code  = '#${color_code}',
+                                    comment = '${comment}',
+                                    record_ymd  = '${record_ymd}',
+                                    updatedAt = '${updatedAt}'
+                                WHERE id  = ${content_id};`,{type: sequelize.QueryTypes.UPDATE});
+    console.log(editContent);
+    res.send([editContent[0]]);
+  }catch(e){
+    console.error(e);
+  }
 });
 module.exports = router;
