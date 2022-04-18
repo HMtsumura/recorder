@@ -14,6 +14,11 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import { threadId } from 'worker_threads';
 
 const style = {
@@ -64,15 +69,21 @@ const palette = {
 interface State{
   result: Array<recordObj>,
   categories: Array<categoryObj>,
-  open: boolean,
+  openRegistForm: boolean,
+  openEditForm: boolean,
   date: any,
   color: Color,
   selected_category: string,
-  selected_category_id: string
+  selected_category_id: string,
+  edit_title: string,
+  edit_color: Color,
+  edit_comment: string,
+  edit_ymd: any,
+  edit_selected_category: string
 }
 
 interface recordObj{
-  id: Number,
+  id: string,
   title: string,
   color_code: string,
   comment: string,
@@ -89,22 +100,34 @@ class App extends Component {
   state: State ={
     result: [],
     categories: [],
-    open: false,
+    openRegistForm: false,
+    openEditForm: false,
     date: null,
     color: createColor("red"),
     selected_category: "",
-    selected_category_id: ""
+    selected_category_id: "",
+    edit_title: "",
+    edit_ymd: null,
+    edit_comment: "",
+    edit_selected_category: "",
+    edit_color: createColor("red")
   }
   constructor(props: any, state: State) {
     super(props);
     this.state = {
       result: [],
       categories: [],
-      open: false,
+      openRegistForm: false,
+      openEditForm: false,
       date: new Date(),
       color: createColor("red"),
       selected_category: "",
-      selected_category_id: ""
+      selected_category_id: "",
+      edit_title: "",
+      edit_ymd: null,
+      edit_comment: "",
+      edit_selected_category: "",
+      edit_color: createColor("red")
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -157,12 +180,12 @@ class App extends Component {
     });
   }
   
-  handleOpen = () => { 
-    this.setState({open: true});
+  handleOpenRegitForm = () => { 
+    this.setState({openRegistForm: true});
   };
 
-  handleClose = () => {
-    this.setState({open: false});
+  handleCloseRegitForm = () => {
+    this.setState({openRegistForm: false});
   };
 
   handleDateChange = (newDate: Date|null)=>{
@@ -207,7 +230,7 @@ class App extends Component {
         category_id: this.state.selected_category_id
       }
     }).then((res)=>{
-      this.handleClose();
+      this.handleCloseRegitForm();
       this.getAllContents();
       console.log(res);
     }).catch((e)=>{
@@ -217,6 +240,30 @@ class App extends Component {
         result: e,
       });
     });
+  }
+
+  handleOpenEditForm=(record: recordObj)=>{
+      const y = record.record_ymd.substring(0,4);
+      const m = record.record_ymd.substring(4,6);
+      const d = record.record_ymd.substring(6,8);
+      console.log(`${d}/${m}/${y}`);
+      this.setState({
+        openEditForm: true,
+        edit_title: record.title,
+        edit_comment: record.comment,
+        edit_color: createColor(record.color_code),
+        edit_ymd: `${d}/${m}/${y}`,
+        edit_selected_category: record.category_name
+      });
+      console.log(this.state);
+  }
+
+  handleCloseEditForm=()=>{
+      this.setState({openEditForm: false});
+  }
+
+  handleEdit=()=>{
+
   }
   render() {
     return (
@@ -228,19 +275,26 @@ class App extends Component {
         ))}
         </select>
         {this.state.result.map((elem: recordObj)=>(
-          <ul>
-            <li>{elem.id}</li>
-            <li>{elem.category_name}</li>
-            <li style={{backgroundColor: elem.color_code}}>{elem.title}</li>
-            <li>{elem.comment}</li>
-            <li>{elem.record_ymd}</li>
-          </ul>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton id={elem.id} onClick={()=>this.handleOpenEditForm(elem)}>
+                <ListItemText primary={elem.title} sx={{backgroundColor: elem.color_code}}/>
+                <ListItemText primary={elem.record_ymd} />
+                <ListItemText primary={elem.comment} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+          // <ul>
+          //   <li>{elem.id}</li>
+          //   <li>{elem.category_name}</li>
+          //   <li style={{backgroundColor: elem.color_code}}></li>
+          // </ul>
         ))}
-        <AddCircleIcon onClick={this.handleOpen}></AddCircleIcon>
-        <Button onClick={this.handleOpen}>Open modal</Button>
+        <AddCircleIcon onClick={this.handleOpenRegitForm}></AddCircleIcon>
+        <Button onClick={this.handleOpenRegitForm}>Open modal</Button>
         <Modal
-          open={this.state.open}
-          onClose={this.handleClose}
+          open={this.state.openRegistForm}
+          onClose={this.handleCloseRegitForm}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
@@ -262,7 +316,7 @@ class App extends Component {
               <InputLabel id="category-label">Category</InputLabel>
               <Select
                 labelId="category-label"
-                id="category"
+                id="edit_category"
                 name="selected_category"
                 value={this.state.selected_category}
                 label="category"
@@ -283,6 +337,7 @@ class App extends Component {
                   label="Title"
                   name="title"
                   required
+                  defaultValue=""
                 >
                 </TextField>
               </div>
@@ -299,9 +354,79 @@ class App extends Component {
                 fullWidth
                 type="submit"
                 variant="contained" 
-                onClick={this.handleOpen}
+                // onClick={this.handleOpenRegitForm}
                 >
                   登録
+                </Button>
+              </div>
+            </FormControl>
+          </Box>
+        </Modal>
+        <Modal
+          open={this.state.openEditForm}
+          onClose={this.handleCloseEditForm}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box component="form" onSubmit={this.handleEdit} noValidate sx={ style }>
+            <FormControl fullWidth>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                記録
+              </Typography>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="date"
+                  value={this.state.edit_ymd}
+                  onChange={(newValue: any) => {
+                    this.setState({edit_ymd: newValue});
+                  }}
+                  renderInput={(params: any) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+              <InputLabel id="category-label">Category</InputLabel>
+              <Select
+                labelId="category-label"
+                id="category"
+                name="selected_category"
+                value={this.state.edit_selected_category}
+                label="category"
+                onChange={this.handleCategorySelect}
+              >
+                {this.state.categories.map((category: categoryObj)=>(
+                  <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
+                ))}
+              </Select>
+              <ColorPicker
+                value={this.state.edit_color} 
+                onChange={this.handleColorChange}
+                palette={palette}
+                hideTextfield/>
+              <div>
+                <TextField 
+                  id="title-field" 
+                  label="Title"
+                  name="title"
+                  defaultValue={this.state.edit_title}
+                  required
+                >
+                </TextField>
+              </div>
+              <TextField
+                  id="comment-field"
+                  label="Comment"
+                  name="comment"
+                  multiline
+                  rows={5}
+                  defaultValue={this.state.edit_comment}
+              />
+              <div>
+                <Button
+                fullWidth
+                type="submit"
+                variant="contained" 
+                onClick={this.handleOpenRegitForm}
+                >
+                  更新
                 </Button>
               </div>
             </FormControl>
