@@ -40,7 +40,6 @@ const style = {
 // TODO 要素のコンポーネント化
 // TODO classじゃなくてexport default functionでreturnで返すようにする
 // TODO タグ選択・作成
-// TODO 登録内容編集・削除
 // TODO　日別の枠出力
 // TODO 日別にデータ分ける
 // TODO 日別でデータ取得
