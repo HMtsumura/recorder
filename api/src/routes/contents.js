@@ -13,6 +13,7 @@ router.get('/', async function(req, res, next) {
                                             , co.record_ymd
                                             , u.user_name
                                             , ca.category_name
+                                            , ca.id AS category_id
                                         from  Contents AS co
                                         ,     Users AS u
                                         ,     Categories ca
@@ -38,6 +39,7 @@ router.get('/categorized', async function(req, res, next) {
                                             , co.record_ymd
                                             , u.user_name
                                             , ca.category_name
+                                            , ca.id AS category_id
                                         from  Contents AS co
                                         ,     Users AS u
                                         ,     Categories ca
@@ -52,6 +54,27 @@ router.get('/categorized', async function(req, res, next) {
                                               where ca.user_id  = '1'`);
   console.log(contents);
   res.send([contents[0], categories[0]]);
+});
+
+router.get('/contentById', async function(req, res, next) {
+  const content_id = req.query.content_id;
+  const contents = await db.sequelize.query(`select 
+                                              co.id
+                                            , co.title
+                                            , co.color_code
+                                            , co.comment
+                                            , co.record_ymd
+                                            , u.user_name
+                                            , ca.category_name
+                                            , ca.id AS category_id
+                                        from  Contents AS co
+                                        ,     Users AS u
+                                        ,     Categories ca
+                                        where co.user_id = u.id
+                                        and   co.category_id = ca.id
+                                        and   co.id = '${content_id}';`);
+  console.log(contents);
+  res.send([contents[0]]);
 });
 
 router.get('/regist', async function(req, res, next) {

@@ -24,7 +24,7 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import { threadId } from 'worker_threads';
 import FullCalendar , { EventApi, DateSelectArg, EventClickArg, EventContentArg, formatDate } from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-// import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin from '@fullcalendar/interaction';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -55,6 +55,7 @@ const categorizedContents = 'http://localhost:3000/contents/categorized';
 const registContent = 'http://localhost:3000/contents/regist';
 const editContent = 'http://localhost:3000/contents/edit';
 const deleteContent = 'http://localhost:3000/contents/delete';
+const contentById = 'http://localhost:3000/contents/contentById';
 
 const palette = {
   red: '#ff0000',
@@ -96,6 +97,7 @@ interface recordObj{
   color_code: string,
   comment: string,
   category_name: string,
+  category_id: string,
   record_ymd: string
 }
 
@@ -192,8 +194,8 @@ class App extends Component {
     });
   }
   
-  handleOpenRegitForm = () => { 
-    this.setState({openRegistForm: true});
+  handleOpenRegistForm = () => { 
+    this.setState({openRegistForm: true, date: new Date()});
   };
 
   handleCloseRegitForm = () => {
@@ -238,7 +240,7 @@ class App extends Component {
       this.state.date.getFullYear(),
       ('0' + (this.state.date.getMonth() + 1)).slice(-2),
       ('0' + this.state.date.getDate()).slice(-2)
-    ].join('');
+    ].join('-');
     const formData = new FormData(event.currentTarget);
     console.log({
       title: formData.get('title'),
@@ -269,9 +271,9 @@ class App extends Component {
   }
 
   handleOpenEditForm=(record: recordObj)=>{
-      const y = record.record_ymd.substring(0,4);
-      const m = record.record_ymd.substring(4,6);
-      const d = record.record_ymd.substring(6,8);
+      const y = record.record_ymd.split('-')[0]
+      const m = record.record_ymd.split('-')[1];
+      const d = record.record_ymd.split('-')[2];
       this.setState({
         openEditForm: true,
         edit_id: record.id,
@@ -280,7 +282,7 @@ class App extends Component {
         edit_color: createColor(record.color_code),
         edit_ymd: `${m}/${d}/${y}`,
         edit_selected_category: record.category_name,
-        edit_selected_category_id: record.id
+        edit_selected_category_id: record.category_id
       });
   }
 
@@ -293,12 +295,12 @@ class App extends Component {
     let ymd;
     if(typeof this.state.edit_ymd === 'string'){
       const split_ymd = this.state.edit_ymd.split('/');
-      ymd = split_ymd[2] + split_ymd[0] + split_ymd[1];
+      ymd = split_ymd[2] + '-' + split_ymd[0] + '-' + split_ymd[1];
     }else{
       const y = this.state.edit_ymd.getFullYear();
       const m = ('0' + (this.state.edit_ymd.getMonth() + 1)).slice(-2);
       const d = ('0' + this.state.edit_ymd.getDate()).slice(-2);
-      ymd = y + m + d;
+      ymd = y + '-' + m + '-' + d;
     }
 
     const formData = new FormData(event.currentTarget);
@@ -350,28 +352,66 @@ class App extends Component {
       });
     });
   }
-  handleEventClick = (arg: EventClickArg) => { // bind with an arrow function
-    console.log(arg)
-    this.setState({openEditForm: true});
+  handleEventClick = (event: any) => {
+    axios.get(contentById,{
+      params: {
+        content_id: event.event.id,
+      }
+    }).then((res)=>{
+      console.log(res);
+      const record: recordObj = res.data[0][0];
+      const y = record.record_ymd.split('-')[0]
+      const m = record.record_ymd.split('-')[1];
+      const d = record.record_ymd.split('-')[2];
+      this.setState({
+        openEditForm: true,
+        edit_id: record.id,
+        edit_title: record.title,
+        edit_comment: record.comment,
+        edit_color: createColor(record.color_code),
+        edit_ymd: `${m}/${d}/${y}`,
+        edit_selected_category: record.category_name,
+        edit_selected_category_id: record.category_id
+    });
+    }).catch((e)=>{
+      console.error(e);
+      this.setState({
+        status: false,
+        // result: e,
+      });
+    });
+  }
+
+  handleDateClick = (event: any) => { 
+    this.setState({openRegistForm: true, date: event.dateStr});
   }
   render() {
+    let events: any = [];
+    this.state.result.forEach((elem: recordObj)=>{
+      const event = {
+        id: elem.id,
+        title: elem.title,
+        date: elem.record_ymd,
+        color: elem.color_code
+      }
+      events.push(event);
+    });
     return (
       <div>
-        <FullCalendar
-          plugins={[ dayGridPlugin ]}
-          eventClick={this.handleEventClick}
-          initialView="dayGridMonth"
-          events={[
-            { title: 'event 1', date: '2022-04-01', color: 'red'},
-            { title: 'event 2', date: '2022-04-02', color: 'blue' }
-          ]}
-        />
         <select onChange={(e) => this.handleChange(e)}>
-        {this.state.categories.map((category: categoryObj)=>(
-          <option id={category.id} value={category.category_name}>{category.category_name}</option>
-        ))}
+          {this.state.categories.map((category: categoryObj)=>(
+            <option id={category.id} value={category.category_name}>{category.category_name}</option>
+          ))}
         </select>
-        {this.state.result.map((elem: recordObj)=>(
+        <AddCircleIcon color="primary" fontSize="large" onClick={this.handleOpenRegistForm}></AddCircleIcon>
+        <FullCalendar
+          plugins={[ dayGridPlugin, interactionPlugin ]}
+          eventClick={this.handleEventClick}
+          dateClick={this.handleDateClick}
+          initialView="dayGridMonth"
+          events={events}
+        />
+        {/* {this.state.result.map((elem: recordObj)=>(
           <List>
             <ListItem disablePadding>
               <ListItemButton id={elem.id} onClick={()=>this.handleOpenEditForm(elem)}>
@@ -381,9 +421,7 @@ class App extends Component {
               </ListItemButton>
             </ListItem>
           </List>
-        ))}
-        <AddCircleIcon onClick={this.handleOpenRegitForm}></AddCircleIcon>
-        <Button onClick={this.handleOpenRegitForm}>Open modal</Button>
+        ))} */}
         <Modal
           open={this.state.openRegistForm}
           onClose={this.handleCloseRegitForm}
