@@ -21,8 +21,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-
 import { threadId } from 'worker_threads';
+import FullCalendar , { EventApi, DateSelectArg, EventClickArg, EventContentArg, formatDate } from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+// import interactionPlugin from '@fullcalendar/interaction';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -348,9 +350,22 @@ class App extends Component {
       });
     });
   }
+  handleEventClick = (arg: EventClickArg) => { // bind with an arrow function
+    console.log(arg)
+    this.setState({openEditForm: true});
+  }
   render() {
     return (
       <div>
+        <FullCalendar
+          plugins={[ dayGridPlugin ]}
+          eventClick={this.handleEventClick}
+          initialView="dayGridMonth"
+          events={[
+            { title: 'event 1', date: '2022-04-01', color: 'red'},
+            { title: 'event 2', date: '2022-04-02', color: 'blue' }
+          ]}
+        />
         <select onChange={(e) => this.handleChange(e)}>
         {this.state.categories.map((category: categoryObj)=>(
           <option id={category.id} value={category.category_name}>{category.category_name}</option>
