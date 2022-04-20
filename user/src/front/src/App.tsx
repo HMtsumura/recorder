@@ -82,6 +82,8 @@ interface State{
   color: Color,
   selected_category: string,
   selected_category_id: string,
+  regist_selected_category: string,
+  regist_selected_category_id: string,
   edit_id: string,
   edit_title: string,
   edit_color: Color,
@@ -116,6 +118,8 @@ class App extends Component {
     color: createColor("red"),
     selected_category: "",
     selected_category_id: "",
+    regist_selected_category: "",
+    regist_selected_category_id: "",
     edit_id: "",
     edit_title: "",
     edit_ymd: null,
@@ -135,6 +139,8 @@ class App extends Component {
       color: createColor("red"),
       selected_category: "",
       selected_category_id: "",
+      regist_selected_category: "",
+      regist_selected_category_id: "",
       edit_id: "",
       edit_title: "",
       edit_ymd: null,
@@ -172,8 +178,14 @@ class App extends Component {
     this.getAllContents();    
   }
 
-  handleChange(e: React.ChangeEvent<HTMLSelectElement>){
-    const selectedId: string|null = e.target[e.target.selectedIndex].getAttribute('id');
+  handleChange(event: SelectChangeEvent, child: any){
+    const selectedId: string = child.props.id;
+    this.setState(
+      { 
+        selected_category: event.target.value
+      , selected_category_id: child.props.id
+      }
+    )
     axios.get(categorizedContents,{
       params: {
         id: selectedId
@@ -218,8 +230,8 @@ class App extends Component {
     console.log(child.props.id);
     this.setState(
       { 
-        selected_category: event.target.value
-      , selected_category_id: child.props.id
+        regist_selected_category: event.target.value
+      , regist_selected_category_id: child.props.id
       }
     );
   }
@@ -398,11 +410,26 @@ class App extends Component {
     });
     return (
       <div>
-        <select onChange={(e) => this.handleChange(e)}>
+        <FormControl sx={{ minWidth: 120 }}>
+          <InputLabel id="category">Category</InputLabel>
+          <Select
+            labelId="category"
+            id="category"
+            name="selected_category"
+            value={this.state.selected_category}
+            label="category"
+            onChange={this.handleChange}
+          >
+            {this.state.categories.map((category: categoryObj)=>(
+              <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {/* <select onChange={(e) => this.handleChange(e)}>
           {this.state.categories.map((category: categoryObj)=>(
             <option id={category.id} value={category.category_name}>{category.category_name}</option>
           ))}
-        </select>
+        </select> */}
         <AddCircleIcon color="primary" fontSize="large" onClick={this.handleOpenRegistForm}></AddCircleIcon>
         <FullCalendar
           plugins={[ dayGridPlugin, interactionPlugin ]}
@@ -443,19 +470,21 @@ class App extends Component {
                   renderInput={(params: any) => <TextField {...params} />}
                 />
               </LocalizationProvider>
-              <InputLabel id="category-label">Category</InputLabel>
-              <Select
-                labelId="category-label"
-                id="edit_category"
-                name="selected_category"
-                value={this.state.selected_category}
-                label="category"
-                onChange={this.handleCategorySelect}
-              >
-                {this.state.categories.map((category: categoryObj)=>(
-                  <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
-                ))}
-              </Select>
+              <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel id="category-label">Category</InputLabel>
+                <Select
+                  labelId="category-label"
+                  id="edit_category"
+                  name="selected_category"
+                  value={this.state.regist_selected_category}
+                  label="category"
+                  onChange={this.handleCategorySelect}
+                >
+                  {this.state.categories.map((category: categoryObj)=>(
+                    <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <ColorPicker
                 value={this.state.color} 
                 onChange={this.handleColorChange}
