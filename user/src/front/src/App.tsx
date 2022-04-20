@@ -25,6 +25,7 @@ import { threadId } from 'worker_threads';
 import FullCalendar , { EventApi, DateSelectArg, EventClickArg, EventContentArg, formatDate } from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import Input from '@mui/material/Input';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -258,7 +259,8 @@ class App extends Component {
       title: formData.get('title'),
       comment: formData.get('comment'),
       color: this.state.color.hex,
-      date: formattedDate
+      date: formattedDate,
+      category_id: this.state.regist_selected_category_id
     });
     axios.get(registContent,{
       params: {
@@ -267,7 +269,7 @@ class App extends Component {
         comment: formData.get('comment'),
         color_code: this.state.color.hex,
         record_ymd: formattedDate,
-        category_id: this.state.selected_category_id
+        category_id: this.state.regist_selected_category_id
       }
     }).then((res)=>{
       this.handleCloseRegitForm();
@@ -397,6 +399,32 @@ class App extends Component {
   handleDateClick = (event: any) => { 
     this.setState({openRegistForm: true, date: event.dateStr});
   }
+
+  handleEnter = (event: any) =>{
+    if (event.keyCode === 13) {
+      console.log(event.target.value);
+      axios.get(contentById,{
+        params: {
+          user_id: '1',
+          category_name: event.target.value,
+        }
+      }).then((res)=>{
+        console.log(res);
+        const record: recordObj = res.data[0][0];
+        this.setState({
+          edit_selected_category: record.category_name,
+          edit_selected_category_id: record.category_id
+      });
+      }).catch((e)=>{
+        console.error(e);
+        this.setState({
+          status: false,
+          // result: e,
+        });
+      });
+      this.setState({regist_selected_category: event.target.value});
+    }
+  }
   render() {
     let events: any = [];
     this.state.result.forEach((elem: recordObj)=>{
@@ -480,6 +508,11 @@ class App extends Component {
                   label="category"
                   onChange={this.handleCategorySelect}
                 >
+                  <TextField
+                    fullWidth
+                    onKeyDown={this.handleEnter}
+                  >
+                  </TextField>
                   {this.state.categories.map((category: categoryObj)=>(
                     <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
                   ))}
