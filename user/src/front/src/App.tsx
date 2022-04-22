@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component} from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -14,18 +14,14 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import { threadId } from 'worker_threads';
-import FullCalendar , { EventApi, DateSelectArg, EventClickArg, EventContentArg, formatDate } from '@fullcalendar/react';
+import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import Input from '@mui/material/Input';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import ReactSelect from 'react-select'
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -57,6 +53,7 @@ const registContent = 'http://localhost:3000/contents/regist';
 const editContent = 'http://localhost:3000/contents/edit';
 const deleteContent = 'http://localhost:3000/contents/delete';
 const contentById = 'http://localhost:3000/contents/contentById';
+const registCategory = 'http://localhost:3000/categories/regist';
 
 const palette = {
   red: '#ff0000',
@@ -403,17 +400,15 @@ class App extends Component {
   handleEnter = (event: any) =>{
     if (event.keyCode === 13) {
       console.log(event.target.value);
-      axios.get(contentById,{
+      axios.get(registCategory,{
         params: {
           user_id: '1',
           category_name: event.target.value,
         }
       }).then((res)=>{
         console.log(res);
-        const record: recordObj = res.data[0][0];
         this.setState({
-          edit_selected_category: record.category_name,
-          edit_selected_category_id: record.category_id
+          categories: res.data[0]
       });
       }).catch((e)=>{
         console.error(e);
@@ -423,6 +418,24 @@ class App extends Component {
         });
       });
       this.setState({regist_selected_category: event.target.value});
+    }
+  }
+
+  handleChipClick = (event: any)=>{
+    if(event.target.localName === "div"){
+      console.log(event.target.id);
+      console.log(event.target.innerText);
+      this.setState({
+                      regist_selected_category: event.target.innerText,
+                      regist_selected_category_id: event.target.id
+                    });
+    }else if(event.target.localName === "span"){
+      this.setState({
+        regist_selected_category: event.target.parentElement.innerText,
+        regist_selected_category_id: event.target.parentElement.id
+      });
+      console.log(event.target.parentElement.innerText);
+      console.log(event.target.parentElement.id);
     }
   }
   render() {
@@ -436,6 +449,15 @@ class App extends Component {
       }
       events.push(event);
     });
+    const renderChip = (value: any) => {
+      return value;
+    };
+    const options = [
+      { value: 'chocolate', label: 'Chocolate' },
+      { value: 'strawberry', label: 'Strawberry' },
+      { value: 'vanilla', label: 'Vanilla' }
+    ]
+
     return (
       <div>
         <FormControl sx={{ minWidth: 120 }}>
@@ -453,11 +475,6 @@ class App extends Component {
             ))}
           </Select>
         </FormControl>
-        {/* <select onChange={(e) => this.handleChange(e)}>
-          {this.state.categories.map((category: categoryObj)=>(
-            <option id={category.id} value={category.category_name}>{category.category_name}</option>
-          ))}
-        </select> */}
         <AddCircleIcon color="primary" fontSize="large" onClick={this.handleOpenRegistForm}></AddCircleIcon>
         <FullCalendar
           plugins={[ dayGridPlugin, interactionPlugin ]}
@@ -466,17 +483,6 @@ class App extends Component {
           initialView="dayGridMonth"
           events={events}
         />
-        {/* {this.state.result.map((elem: recordObj)=>(
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton id={elem.id} onClick={()=>this.handleOpenEditForm(elem)}>
-                <ListItemText primary={elem.title} sx={{backgroundColor: elem.color_code}}/>
-                <ListItemText primary={elem.record_ymd} />
-                <ListItemText primary={elem.comment} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        ))} */}
         <Modal
           open={this.state.openRegistForm}
           onClose={this.handleCloseRegitForm}
@@ -498,6 +504,7 @@ class App extends Component {
                   renderInput={(params: any) => <TextField {...params} />}
                 />
               </LocalizationProvider>
+              <ReactSelect options={options}></ReactSelect>
               <FormControl sx={{ minWidth: 120 }}>
                 <InputLabel id="category-label">Category</InputLabel>
                 <Select
@@ -506,6 +513,7 @@ class App extends Component {
                   name="selected_category"
                   value={this.state.regist_selected_category}
                   label="category"
+                  renderValue={renderChip}
                   onChange={this.handleCategorySelect}
                 >
                   <TextField
@@ -514,7 +522,8 @@ class App extends Component {
                   >
                   </TextField>
                   {this.state.categories.map((category: categoryObj)=>(
-                    <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
+                    <Chip id={category.id} key={category.category_name} label={category.category_name} onClick={this.handleChipClick}></Chip>
+                    // <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -611,24 +620,26 @@ class App extends Component {
                   defaultValue={this.state.edit_comment}
               />
               <div>
-                <Button
-                fullWidth
-                type="button"
-                variant="contained" 
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={this.handleDelete}
-                >
-                  削除
-                </Button>
-                <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                startIcon={<ChangeCircleIcon />}
-                >
-                  更新
-                </Button>
+                <Stack spacing={2} direction="row">
+                  <Button
+                  fullWidth
+                  type="button"
+                  variant="contained" 
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={this.handleDelete}
+                  >
+                    削除
+                  </Button>
+                  <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  startIcon={<ChangeCircleIcon />}
+                  >
+                    更新
+                  </Button>
+                </Stack>
               </div>
             </FormControl>
           </Box>

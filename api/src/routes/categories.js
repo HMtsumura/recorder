@@ -1,5 +1,7 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const { sequelize } = require('../models');
+const router = express.Router();
+const db = require('../models');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -16,7 +18,7 @@ router.get('/regist', async function(req, res, next) {
       ('0' + today.getDate()).slice(-2)
     ].join('');
     try{
-      const registCategory = await db.sequelize.query(`INSERT INTO Contents(
+        const registCategory = await db.sequelize.query(`INSERT INTO Categories(
                                                             user_id, 
                                                             category_name,
                                                             createdAt, 
@@ -28,12 +30,22 @@ router.get('/regist', async function(req, res, next) {
                                                             '${createdAt}');`
                                                         ,{type: sequelize.QueryTypes.INSERT}
                                                     );
+        const selectCategories = await db.sequelize.query(`SELECT
+                                                            ca.id AS id
+                                                        ,   ca.category_name
+                                                         FROM
+                                                            Categories AS ca
+                                                         WHERE
+                                                            user_id = ${user_id};`
+                                                        ,{type: sequelize.QueryTypes.SELECT}
+                                                    );
+                                                
       console.log(registCategory);
-      res.send([registContent[0]]);
+      console.log(selectCategories);
+      res.send([selectCategories]);
     }catch(e){
       console.error(e);
     }
-    res.send('respond with a resource');
   });
 
 module.exports = router;
