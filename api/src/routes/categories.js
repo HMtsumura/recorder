@@ -31,8 +31,8 @@ router.get('/regist', async function(req, res, next) {
                                                         ,{type: sequelize.QueryTypes.INSERT}
                                                     );
         const selectCategories = await db.sequelize.query(`SELECT
-                                                            ca.id AS id
-                                                        ,   ca.category_name
+                                                            ca.id AS value
+                                                        ,   ca.category_name as label
                                                          FROM
                                                             Categories AS ca
                                                          WHERE

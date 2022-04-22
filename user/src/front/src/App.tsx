@@ -11,17 +11,19 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Color, ColorPicker, createColor } from 'material-ui-color';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+// import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin, { ThirdPartyDraggable } from '@fullcalendar/interaction';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
-import ReactSelect from 'react-select'
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
+import CreatableSelect from 'react-select/creatable';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -55,6 +57,8 @@ const deleteContent = 'http://localhost:3000/contents/delete';
 const contentById = 'http://localhost:3000/contents/contentById';
 const registCategory = 'http://localhost:3000/categories/regist';
 
+const animatedComponents = makeAnimated();
+
 const palette = {
   red: '#ff0000',
   blue: '#0000ff',
@@ -80,14 +84,16 @@ interface State{
   color: Color,
   selected_category: string,
   selected_category_id: string,
-  regist_selected_category: string,
+  regist_title: string,
+  regist_comment: string,
+  regist_selected_category_name: string,
   regist_selected_category_id: string,
   edit_id: string,
   edit_title: string,
   edit_color: Color,
   edit_comment: string,
   edit_ymd: any,
-  edit_selected_category: string,
+  edit_selected_category_name: string,
   edit_selected_category_id: string
 }
 
@@ -96,14 +102,33 @@ interface recordObj{
   title: string,
   color_code: string,
   comment: string,
-  category_name: string,
-  category_id: string,
+  label: string,
+  value: string,
   record_ymd: string
 }
 
 interface categoryObj{
-  id: string,
-  category_name: string
+  value: string,
+  label: string
+}
+
+const customStyles = {
+  option: (provided: any, state: any) => ({
+    ...provided,
+    borderBottom: '1px dotted pink',
+    color: state.isSelected ? 'red' : 'blue',
+    padding: 20,
+  }),
+  control: () => ({
+    // none of react-select's styles are passed to <Control />
+    width: 200,
+  }),
+  singleValue: (provided: any, state: any) => {
+    const opacity = state.isDisabled ? 0.5 : 1;
+    const transition = 'opacity 300ms';
+
+    return { ...provided, opacity, transition };
+  }
 }
 
 class App extends Component {
@@ -116,13 +141,15 @@ class App extends Component {
     color: createColor("red"),
     selected_category: "",
     selected_category_id: "",
-    regist_selected_category: "",
+    regist_title: "",
+    regist_comment: "",
+    regist_selected_category_name: "",
     regist_selected_category_id: "",
     edit_id: "",
     edit_title: "",
     edit_ymd: null,
     edit_comment: "",
-    edit_selected_category: "",
+    edit_selected_category_name: "",
     edit_color: createColor("red"),
     edit_selected_category_id: "",
   }
@@ -137,19 +164,21 @@ class App extends Component {
       color: createColor("red"),
       selected_category: "",
       selected_category_id: "",
-      regist_selected_category: "",
+      regist_title: "",
+      regist_comment: "",
+      regist_selected_category_name: "",
       regist_selected_category_id: "",
       edit_id: "",
       edit_title: "",
       edit_ymd: null,
       edit_comment: "",
-      edit_selected_category: "",
+      edit_selected_category_name: "",
       edit_color: createColor("red"),
       edit_selected_category_id: ""
     };
 
     this.handleClick = this.handleClick.bind(this);
-    this.handleChange= this.handleChange.bind(this);
+    // this.handleChange= this.handleChange.bind(this);
     this.handleDateChange= this.handleDateChange.bind(this);
     this.getAllContents();
   }
@@ -172,40 +201,83 @@ class App extends Component {
         });
       });
   }
-  handleClick() {
-    this.getAllContents();    
-  }
-
-  handleChange(event: SelectChangeEvent, child: any){
-    const selectedId: string = child.props.id;
-    this.setState(
-      { 
-        selected_category: event.target.value
-      , selected_category_id: child.props.id
-      }
-    )
-    axios.get(categorizedContents,{
+  handleClick(event: any) {
+    event.preventDefault();
+    console.log(this.state.date);
+    let ymd;
+    if(typeof this.state.date === 'string'){
+      ymd = this.state.date;
+    }else{
+      const y = this.state.date.getFullYear();
+      const m = ('0' + (this.state.date.getMonth() + 1)).slice(-2);
+      const d = ('0' + this.state.date.getDate()).slice(-2);
+      ymd = y + '-' + m + '-' + d;
+    }
+    // const formData = new FormData(event.currentTarget);
+    console.log({
+      title: this.state.regist_title,
+      comment: this.state.regist_comment,
+      color: this.state.color.hex,
+      date: ymd,
+      category_id: this.state.regist_selected_category_id
+    });
+    axios.get(registContent,{
       params: {
-        id: selectedId
+        user_id: '1',
+        title: this.state.regist_title,
+        comment: this.state.regist_comment,
+        color_code: this.state.color.hex,
+        record_ymd: ymd,
+        category_id: this.state.regist_selected_category_id
       }
     }).then((res)=>{
-      console.log(res.data[1]);
-      this.setState({
-        status: true,
-        result: res.data[0],
-        categories: res.data[1]
-      });
-    }).catch((e) => {
+      this.handleCloseRegitForm();
+      this.getAllContents();
+      console.log(res);
+    }).catch((e)=>{
       console.error(e);
       this.setState({
         status: false,
         result: e,
       });
-    });
+    });// this.getAllContents();    
   }
+
+  // handleChange(event: SelectChangeEvent, child: any){
+  //   const selectedId: string = child.props.id;
+  //   this.setState(
+  //     { 
+  //       selected_category: event.target.value
+  //     , selected_category_id: child.props.id
+  //     }
+  //   )
+  //   axios.get(categorizedContents,{
+  //     params: {
+  //       id: selectedId
+  //     }
+  //   }).then((res)=>{
+  //     console.log(res.data[1]);
+  //     this.setState({
+  //       status: true,
+  //       result: res.data[0],
+  //       categories: res.data[1]
+  //     });
+  //   }).catch((e) => {
+  //     console.error(e);
+  //     this.setState({
+  //       status: false,
+  //       result: e,
+  //     });
+  //   });
+  // }
   
   handleOpenRegistForm = () => { 
-    this.setState({openRegistForm: true, date: new Date()});
+    this.setState({
+      openRegistForm: true,
+      date: new Date(),
+      regist_title: "",
+      regist_comment: ""
+    });
   };
 
   handleCloseRegitForm = () => {
@@ -224,39 +296,24 @@ class App extends Component {
     this.setState({edit_color: newColor});
   }
 
-  handleCategorySelect = (event: SelectChangeEvent, child: any)=>{
-    console.log(child.props.id);
-    this.setState(
-      { 
-        regist_selected_category: event.target.value
-      , regist_selected_category_id: child.props.id
-      }
-    );
-  }
-
-  handleEditCategorySelect = (event: SelectChangeEvent, child: any)=>{
-    console.log(child.props.id);
-    this.setState(
-      { 
-        edit_selected_category: event.target.value
-      , edit_selected_category_id: child.props.id
-      }
-    );
-  }
-
   handleRegist = (event: React.FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
-    const formattedDate = [
-      this.state.date.getFullYear(),
-      ('0' + (this.state.date.getMonth() + 1)).slice(-2),
-      ('0' + this.state.date.getDate()).slice(-2)
-    ].join('-');
+    console.log(this.state.date);
+    let ymd;
+    if(typeof this.state.date === 'string'){
+      ymd = this.state.date;
+    }else{
+      const y = this.state.date.getFullYear();
+      const m = ('0' + (this.state.date.getMonth() + 1)).slice(-2);
+      const d = ('0' + this.state.date.getDate()).slice(-2);
+      ymd = y + '-' + m + '-' + d;
+    }
     const formData = new FormData(event.currentTarget);
     console.log({
       title: formData.get('title'),
       comment: formData.get('comment'),
       color: this.state.color.hex,
-      date: formattedDate,
+      date: ymd,
       category_id: this.state.regist_selected_category_id
     });
     axios.get(registContent,{
@@ -265,7 +322,7 @@ class App extends Component {
         title: formData.get('title'),
         comment: formData.get('comment'),
         color_code: this.state.color.hex,
-        record_ymd: formattedDate,
+        record_ymd: ymd,
         category_id: this.state.regist_selected_category_id
       }
     }).then((res)=>{
@@ -282,6 +339,7 @@ class App extends Component {
   }
 
   handleOpenEditForm=(record: recordObj)=>{
+      console.log('record',record);
       const y = record.record_ymd.split('-')[0]
       const m = record.record_ymd.split('-')[1];
       const d = record.record_ymd.split('-')[2];
@@ -292,8 +350,8 @@ class App extends Component {
         edit_comment: record.comment,
         edit_color: createColor(record.color_code),
         edit_ymd: `${m}/${d}/${y}`,
-        edit_selected_category: record.category_name,
-        edit_selected_category_id: record.category_id
+        edit_selected_category_name: record.label,
+        edit_selected_category_id: record.value
       });
   }
 
@@ -335,7 +393,7 @@ class App extends Component {
     }).then((res)=>{
       this.handleCloseEditForm();
       this.getAllContents();
-      console.log(res);
+      
     }).catch((e)=>{
       console.error(e);
       this.setState({
@@ -364,6 +422,7 @@ class App extends Component {
     });
   }
   handleEventClick = (event: any) => {
+    console.log(event);
     axios.get(contentById,{
       params: {
         content_id: event.event.id,
@@ -381,8 +440,8 @@ class App extends Component {
         edit_comment: record.comment,
         edit_color: createColor(record.color_code),
         edit_ymd: `${m}/${d}/${y}`,
-        edit_selected_category: record.category_name,
-        edit_selected_category_id: record.category_id
+        edit_selected_category_name: record.label,
+        edit_selected_category_id: record.value
     });
     }).catch((e)=>{
       console.error(e);
@@ -394,16 +453,50 @@ class App extends Component {
   }
 
   handleDateClick = (event: any) => { 
-    this.setState({openRegistForm: true, date: event.dateStr});
+    this.setState({
+      openRegistForm: true,
+      regist_title: "",
+      regist_comment: "",
+      date: event.dateStr
+    });
   }
 
-  handleEnter = (event: any) =>{
-    if (event.keyCode === 13) {
-      console.log(event.target.value);
+  handleSelect = (event: any)=>{
+    console.log(event);
+    const selectedId: string = event.value;
+    this.setState(
+      { 
+        selected_category: event.label,
+        selected_category_id: event.value
+      }
+    )
+    axios.get(categorizedContents,{
+      params: {
+        id: selectedId
+      }
+    }).then((res)=>{
+      console.log(res.data[1]);
+      this.setState({
+        status: true,
+        result: res.data[0],
+        categories: res.data[1]
+      });
+    }).catch((e) => {
+      console.error(e);
+      this.setState({
+        status: false,
+        result: e,
+      });
+    });
+  }
+
+  handleRegistCategoryChange = (event: any) =>{
+    if(event.__isNew__){
+      console.log(event);
       axios.get(registCategory,{
         params: {
           user_id: '1',
-          category_name: event.target.value,
+          category_name: event.label,
         }
       }).then((res)=>{
         console.log(res);
@@ -417,27 +510,34 @@ class App extends Component {
           // result: e,
         });
       });
-      this.setState({regist_selected_category: event.target.value});
+      this.setState({
+        regist_selected_category_name: event.label,
+        regist_selected_category_id: event.value  
+      });
+
+    }else{
+      this.setState({
+        regist_selected_category_name: event.label,
+        regist_selected_category_id: event.value
+      })
     }
   }
 
-  handleChipClick = (event: any)=>{
-    if(event.target.localName === "div"){
-      console.log(event.target.id);
-      console.log(event.target.innerText);
-      this.setState({
-                      regist_selected_category: event.target.innerText,
-                      regist_selected_category_id: event.target.id
-                    });
-    }else if(event.target.localName === "span"){
-      this.setState({
-        regist_selected_category: event.target.parentElement.innerText,
-        regist_selected_category_id: event.target.parentElement.id
-      });
-      console.log(event.target.parentElement.innerText);
-      console.log(event.target.parentElement.id);
-    }
+  handleEditCategoryChange = (event: any) =>{
+    this.setState({
+      edit_selected_category_name: event.label,
+      edit_selected_category_id: event.value
+    });
   }
+
+  handleRegistTitleChange =(event: any) =>{
+    this.setState({regist_title: event.target.value});
+  }
+
+  handleRegistCommentChange =(event: any) =>{
+    this.setState({regist_comment: event.target.value});
+  }
+
   render() {
     let events: any = [];
     this.state.result.forEach((elem: recordObj)=>{
@@ -449,31 +549,20 @@ class App extends Component {
       }
       events.push(event);
     });
-    const renderChip = (value: any) => {
-      return value;
-    };
-    const options = [
-      { value: 'chocolate', label: 'Chocolate' },
-      { value: 'strawberry', label: 'Strawberry' },
-      { value: 'vanilla', label: 'Vanilla' }
-    ]
 
     return (
       <div>
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel id="category">Category</InputLabel>
-          <Select
-            labelId="category"
-            id="category"
-            name="selected_category"
-            value={this.state.selected_category}
-            label="category"
-            onChange={this.handleChange}
-          >
-            {this.state.categories.map((category: categoryObj)=>(
-              <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
-            ))}
-          </Select>
+        
+        <FormControl sx={{ minWidth: 150 }}>
+          <Select 
+            options={this.state.categories}
+            components={animatedComponents}
+            onChange={this.handleSelect}
+            styles={{
+              // Fixes the overlapping problem of the component
+              menu: provided => ({ ...provided, zIndex: 9999 })
+            }}
+          ></Select>
         </FormControl>
         <AddCircleIcon color="primary" fontSize="large" onClick={this.handleOpenRegistForm}></AddCircleIcon>
         <FullCalendar
@@ -504,29 +593,16 @@ class App extends Component {
                   renderInput={(params: any) => <TextField {...params} />}
                 />
               </LocalizationProvider>
-              <ReactSelect options={options}></ReactSelect>
-              <FormControl sx={{ minWidth: 120 }}>
-                <InputLabel id="category-label">Category</InputLabel>
-                <Select
-                  labelId="category-label"
-                  id="edit_category"
-                  name="selected_category"
-                  value={this.state.regist_selected_category}
-                  label="category"
-                  renderValue={renderChip}
-                  onChange={this.handleCategorySelect}
-                >
-                  <TextField
-                    fullWidth
-                    onKeyDown={this.handleEnter}
-                  >
-                  </TextField>
-                  {this.state.categories.map((category: categoryObj)=>(
-                    <Chip id={category.id} key={category.category_name} label={category.category_name} onClick={this.handleChipClick}></Chip>
-                    // <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <CreatableSelect
+                isClearable
+                onChange={this.handleRegistCategoryChange}
+                // onInputChange={this.handleInputChange}
+                options={this.state.categories}
+                styles={{
+                  // Fixes the overlapping problem of the component
+                  menu: provided => ({ ...provided, zIndex: 9999 })
+                }}
+              />
               <ColorPicker
                 value={this.state.color} 
                 onChange={this.handleColorChange}
@@ -539,6 +615,8 @@ class App extends Component {
                   name="title"
                   required
                   defaultValue=""
+                  value={this.state.regist_title}
+                  onChange={this.handleRegistTitleChange}
                 >
                 </TextField>
               </div>
@@ -549,12 +627,15 @@ class App extends Component {
                   multiline
                   rows={5}
                   defaultValue=""
+                  value={this.state.regist_comment}
+                  onChange={this.handleRegistCommentChange}
               />
               <div>
                 <Button
                 fullWidth
-                type="submit"
+                type="button"
                 variant="contained"
+                onClick={this.handleClick}
                 >
                   登録
                 </Button>
@@ -583,19 +664,15 @@ class App extends Component {
                   renderInput={(params: any) => <TextField {...params} />}
                 />
               </LocalizationProvider>
-              <InputLabel id="category-label">Category</InputLabel>
-              <Select
-                labelId="category-label"
-                id="category"
-                name="selected_category"
-                value={this.state.edit_selected_category}
-                label="category"
-                onChange={this.handleEditCategorySelect}
-              >
-                {this.state.categories.map((category: categoryObj)=>(
-                  <MenuItem id={category.id} value={category.category_name}>{category.category_name}</MenuItem>
-                ))}
-              </Select>
+              <Select 
+                options={this.state.categories}
+                styles={{
+                  // Fixes the overlapping problem of the component
+                  menu: provided => ({ ...provided, zIndex: 9999 })
+                }}
+                onChange={this.handleEditCategoryChange}
+                defaultValue={{value: this.state.edit_selected_category_id, label: this.state.edit_selected_category_name}}
+              ></Select>
               <ColorPicker
                 value={this.state.edit_color} 
                 onChange={this.handleEditColorChange}

@@ -21,11 +21,11 @@ router.get('/', async function(req, res, next) {
                                         and   co.category_id = ca.id;`);
 
   const categories = await db.sequelize.query(`select 
-                                                ca.id
-                                              , ca.category_name
+                                                ca.id AS value
+                                              , ca.category_name as label
                                               from  Categories  AS  ca
                                               where ca.user_id  = '1'`);
-  console.log(categories);
+  // console.log(categories);
   res.send([contents[0], categories[0]]);
 });
 
@@ -48,8 +48,8 @@ router.get('/categorized', async function(req, res, next) {
                                         and   co.category_id = '${category_id}';`);
 
   const categories = await db.sequelize.query(`select 
-                                                ca.id
-                                              , ca.category_name
+                                                ca.id AS value
+                                              , ca.category_name  AS label
                                               from  Categories  AS  ca
                                               where ca.user_id  = '1'`);
   console.log(contents);
@@ -65,8 +65,8 @@ router.get('/contentById', async function(req, res, next) {
                                             , co.comment
                                             , co.record_ymd
                                             , u.user_name
-                                            , ca.category_name
-                                            , ca.id AS category_id
+                                            , ca.category_name AS label
+                                            , ca.id AS value
                                         from  Contents AS co
                                         ,     Users AS u
                                         ,     Categories ca
