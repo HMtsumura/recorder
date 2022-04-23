@@ -35,8 +35,7 @@ const style = {
 
 // TODO メソッド名・変数名考える必要あり
 // TODO 要素のコンポーネント化
-// TODO classじゃなくてexport default functionでreturnで返すようにする
-// TODO タグ選択・作成
+// TODO classじゃなくてexport default functionでreturnで返すようにする  
 // TODO ユーザー作成・編集
 // TODO バリデーション
 // TODO デザイン
@@ -379,70 +378,91 @@ class App extends Component {
   }
 
   handleSelect = (event: any)=>{
-    const selectedId: string = event.value;
-    this.setState(
-      { 
-        selected_category: event.label,
-        selected_category_id: event.value
-      }
-    )
-    axios.get(categorizedContents,{
-      params: {
-        id: selectedId
-      }
-    }).then((res)=>{
-      console.log(res.data[1]);
+    if(event == null){
+      this.getAllContents();
       this.setState({
-        status: true,
-        result: res.data[0],
-        categories: res.data[1]
+        selected_category: "",
+        selected_category_id: ""
       });
-    }).catch((e) => {
-      console.error(e);
-      this.setState({
-        status: false,
-        result: e,
-      });
-    });
-  }
-
-  handleRegistCategoryChange = (event: any) =>{
-    if(event.__isNew__){
-
-      axios.get(registCategory,{
-        params: {
-          user_id: '1',
-          category_name: event.label,
+    }else{
+      const selectedId: string = event.value;
+      this.setState(
+        { 
+          selected_category: event.label,
+          selected_category_id: event.value
         }
-      }).then((res)=>{ 
+      )
+      axios.get(categorizedContents,{
+        params: {
+          id: selectedId
+        }
+      }).then((res)=>{
+        console.log(res.data[1]);
         this.setState({
-          categories: res.data[0],
-          regist_selected_category_id: res.data[1][0]
-      });
-      }).catch((e)=>{
+          status: true,
+          result: res.data[0],
+          categories: res.data[1]
+        });
+      }).catch((e) => {
         console.error(e);
         this.setState({
           status: false,
-          // result: e,
+          result: e,
         });
       });
-      this.setState({
-        regist_selected_category_name: event.label,
-      });
-      console.log(this.state.regist_selected_category_id);
+    }
+  }
+
+  handleRegistCategoryChange = (event: any) =>{
+    if(event != null){
+      if(event.__isNew__){
+        axios.get(registCategory,{
+          params: {
+            user_id: '1',
+            category_name: event.label,
+          }
+        }).then((res)=>{ 
+          this.setState({
+            categories: res.data[0],
+            regist_selected_category_id: res.data[1][0]
+        });
+        }).catch((e)=>{
+          console.error(e);
+          this.setState({
+            status: false,
+            // result: e,
+          });
+        });
+        this.setState({
+          regist_selected_category_name: event.label,
+        });
+        console.log(this.state.regist_selected_category_id);
+      }else{
+        this.setState({
+          regist_selected_category_name: event.label,
+          regist_selected_category_id: event.value
+        });
+      }
     }else{
       this.setState({
-        regist_selected_category_name: event.label,
-        regist_selected_category_id: event.value
-      })
+        regist_selected_category_name: "",
+        regist_selected_category_id: ""
+      });
     }
   }
 
   handleEditCategoryChange = (event: any) =>{
-    this.setState({
-      edit_selected_category_name: event.label,
-      edit_selected_category_id: event.value
-    });
+    if(event != null){
+      this.setState({
+        edit_selected_category_name: event.label,
+        edit_selected_category_id: event.value
+      });
+    }else{
+      this.setState({
+        edit_selected_category_name: "",
+        edit_selected_category_id: ""
+      });
+    }
   }
 
   handleRegistTitleChange =(event: any) =>{
@@ -469,7 +489,8 @@ class App extends Component {
       <div>
         
         <FormControl sx={{ minWidth: 150 }}>
-          <Select 
+          <Select
+            isClearable
             options={this.state.categories}
             components={animatedComponents}
             onChange={this.handleSelect}
@@ -579,6 +600,7 @@ class App extends Component {
                 />
               </LocalizationProvider>
               <Select 
+                isClearable
                 options={this.state.categories}
                 styles={{
                   menu: provided => ({ ...provided, zIndex: 9999 })
