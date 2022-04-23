@@ -105,25 +105,6 @@ interface categoryObj{
   label: string
 }
 
-const customStyles = {
-  option: (provided: any, state: any) => ({
-    ...provided,
-    borderBottom: '1px dotted pink',
-    color: state.isSelected ? 'red' : 'blue',
-    padding: 20,
-  }),
-  control: () => ({
-    // none of react-select's styles are passed to <Control />
-    width: 200,
-  }),
-  singleValue: (provided: any, state: any) => {
-    const opacity = state.isDisabled ? 0.5 : 1;
-    const transition = 'opacity 300ms';
-
-    return { ...provided, opacity, transition };
-  }
-}
-
 class App extends Component {
   state: State ={
     result: [],
@@ -206,14 +187,6 @@ class App extends Component {
       const d = ('0' + this.state.date.getDate()).slice(-2);
       ymd = y + '-' + m + '-' + d;
     }
-    // const formData = new FormData(event.currentTarget);
-    console.log({
-      title: this.state.regist_title,
-      comment: this.state.regist_comment,
-      color: this.state.color.hex,
-      date: ymd,
-      category_id: this.state.regist_selected_category_id
-    });
     axios.get(registContent,{
       params: {
         user_id: '1',
@@ -263,7 +236,6 @@ class App extends Component {
 
   handleRegist = (event: React.FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
-    console.log(this.state.date);
     let ymd;
     if(typeof this.state.date === 'string'){
       ymd = this.state.date;
@@ -274,13 +246,6 @@ class App extends Component {
       ymd = y + '-' + m + '-' + d;
     }
     const formData = new FormData(event.currentTarget);
-    console.log({
-      title: formData.get('title'),
-      comment: formData.get('comment'),
-      color: this.state.color.hex,
-      date: ymd,
-      category_id: this.state.regist_selected_category_id
-    });
     axios.get(registContent,{
       params: {
         user_id: '1',
@@ -292,8 +257,7 @@ class App extends Component {
       }
     }).then((res)=>{
       this.handleCloseRegitForm();
-      this.getAllContents();
-      console.log(res);
+      this.getAllContents(); 
     }).catch((e)=>{
       console.error(e);
       this.setState({
@@ -304,7 +268,6 @@ class App extends Component {
   }
 
   handleOpenEditForm=(record: recordObj)=>{
-      console.log('record',record);
       const y = record.record_ymd.split('-')[0]
       const m = record.record_ymd.split('-')[1];
       const d = record.record_ymd.split('-')[2];
@@ -338,14 +301,6 @@ class App extends Component {
     }
 
     const formData = new FormData(event.currentTarget);
-    console.log({
-      content_id: this.state.edit_id,
-      title: formData.get('edit_title'),
-      comment: formData.get('edit_comment'),
-      color: this.state.edit_color.hex,
-      date: ymd,
-      category_id: this.state.edit_selected_category_id
-    });
     axios.get(editContent,{
       params: {
         content_id: this.state.edit_id,
@@ -369,7 +324,6 @@ class App extends Component {
   }
 
   handleDelete=()=>{
-    console.log(this.state.edit_id);
     axios.get(deleteContent,{
       params: {
         content_id: this.state.edit_id,
@@ -387,13 +341,11 @@ class App extends Component {
     });
   }
   handleEventClick = (event: any) => {
-    console.log(event);
     axios.get(contentById,{
       params: {
         content_id: event.event.id,
       }
     }).then((res)=>{
-      console.log(res);
       const record: recordObj = res.data[0][0];
       const y = record.record_ymd.split('-')[0]
       const m = record.record_ymd.split('-')[1];
@@ -427,7 +379,6 @@ class App extends Component {
   }
 
   handleSelect = (event: any)=>{
-    console.log(event);
     const selectedId: string = event.value;
     this.setState(
       { 
@@ -457,16 +408,16 @@ class App extends Component {
 
   handleRegistCategoryChange = (event: any) =>{
     if(event.__isNew__){
-      console.log(event);
+
       axios.get(registCategory,{
         params: {
           user_id: '1',
           category_name: event.label,
         }
-      }).then((res)=>{
-        console.log(res);
+      }).then((res)=>{ 
         this.setState({
-          categories: res.data[0]
+          categories: res.data[0],
+          regist_selected_category_id: res.data[1][0]
       });
       }).catch((e)=>{
         console.error(e);
@@ -477,9 +428,8 @@ class App extends Component {
       });
       this.setState({
         regist_selected_category_name: event.label,
-        regist_selected_category_id: event.value  
       });
-
+      console.log(this.state.regist_selected_category_id);
     }else{
       this.setState({
         regist_selected_category_name: event.label,
@@ -524,7 +474,6 @@ class App extends Component {
             components={animatedComponents}
             onChange={this.handleSelect}
             styles={{
-              // Fixes the overlapping problem of the component
               menu: provided => ({ ...provided, zIndex: 9999 })
             }}
           ></Select>
@@ -632,7 +581,6 @@ class App extends Component {
               <Select 
                 options={this.state.categories}
                 styles={{
-                  // Fixes the overlapping problem of the component
                   menu: provided => ({ ...provided, zIndex: 9999 })
                 }}
                 onChange={this.handleEditCategoryChange}

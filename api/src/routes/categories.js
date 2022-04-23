@@ -42,7 +42,7 @@ router.get('/regist', async function(req, res, next) {
                                                 
       console.log(registCategory);
       console.log(selectCategories);
-      res.send([selectCategories]);
+      res.send([selectCategories, registCategory]);
     }catch(e){
       console.error(e);
     }
