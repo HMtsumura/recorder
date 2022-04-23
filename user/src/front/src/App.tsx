@@ -11,15 +11,11 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Color, ColorPicker, createColor } from 'material-ui-color';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FormControl from '@mui/material/FormControl';
-// import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin, { ThirdPartyDraggable } from '@fullcalendar/interaction';
-import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
@@ -41,9 +37,6 @@ const style = {
 // TODO 要素のコンポーネント化
 // TODO classじゃなくてexport default functionでreturnで返すようにする
 // TODO タグ選択・作成
-// TODO　日別の枠出力
-// TODO 日別にデータ分ける
-// TODO 日別でデータ取得
 // TODO ユーザー作成・編集
 // TODO バリデーション
 // TODO デザイン
@@ -240,37 +233,9 @@ class App extends Component {
         status: false,
         result: e,
       });
-    });// this.getAllContents();    
+    });
   }
 
-  // handleChange(event: SelectChangeEvent, child: any){
-  //   const selectedId: string = child.props.id;
-  //   this.setState(
-  //     { 
-  //       selected_category: event.target.value
-  //     , selected_category_id: child.props.id
-  //     }
-  //   )
-  //   axios.get(categorizedContents,{
-  //     params: {
-  //       id: selectedId
-  //     }
-  //   }).then((res)=>{
-  //     console.log(res.data[1]);
-  //     this.setState({
-  //       status: true,
-  //       result: res.data[0],
-  //       categories: res.data[1]
-  //     });
-  //   }).catch((e) => {
-  //     console.error(e);
-  //     this.setState({
-  //       status: false,
-  //       result: e,
-  //     });
-  //   });
-  // }
-  
   handleOpenRegistForm = () => { 
     this.setState({
       openRegistForm: true,
