@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
-import {DatePicker} from '@mui/x-date-pickers';
+import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Color, ColorPicker, createColor } from 'material-ui-color';
@@ -18,8 +18,6 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin, { ThirdPartyDraggable } from '@fullcalendar/interaction';
 import Stack from '@mui/material/Stack';
 import Select from 'react-select';
-import makeAnimated from 'react-select/animated';
-import CreatableSelect from 'react-select/creatable';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -49,8 +47,6 @@ const deleteContent = 'http://localhost:3000/contents/delete';
 const contentById = 'http://localhost:3000/contents/contentById';
 const registCategory = 'http://localhost:3000/categories/regist';
 
-const animatedComponents = makeAnimated();
-
 const palette = {
   red: '#ff0000',
   blue: '#0000ff',
@@ -67,7 +63,7 @@ const palette = {
   darkblue: 'darkblue',
 };
 
-interface State{
+interface State {
   result: Array<recordObj>,
   categories: Array<categoryObj>,
   openRegistForm: boolean,
@@ -89,7 +85,7 @@ interface State{
   edit_selected_category_id: string
 }
 
-interface recordObj{
+interface recordObj {
   id: string,
   title: string,
   color_code: string,
@@ -99,13 +95,13 @@ interface recordObj{
   record_ymd: string
 }
 
-interface categoryObj{
+interface categoryObj {
   value: string,
   label: string
 }
 
 class App extends Component {
-  state: State ={
+  state: State = {
     result: [],
     categories: [],
     openRegistForm: false,
@@ -152,11 +148,11 @@ class App extends Component {
 
     this.handleClick = this.handleClick.bind(this);
     // this.handleChange= this.handleChange.bind(this);
-    this.handleDateChange= this.handleDateChange.bind(this);
+    this.handleDateChange = this.handleDateChange.bind(this);
     this.getAllContents();
   }
 
-  getAllContents(){
+  getAllContents() {
     axios.get(server)
       .then((res) => {
         console.log(res.data[1]);
@@ -178,15 +174,15 @@ class App extends Component {
     event.preventDefault();
     console.log(this.state.date);
     let ymd;
-    if(typeof this.state.date === 'string'){
+    if (typeof this.state.date === 'string') {
       ymd = this.state.date;
-    }else{
+    } else {
       const y = this.state.date.getFullYear();
       const m = ('0' + (this.state.date.getMonth() + 1)).slice(-2);
       const d = ('0' + this.state.date.getDate()).slice(-2);
       ymd = y + '-' + m + '-' + d;
     }
-    axios.get(registContent,{
+    axios.get(registContent, {
       params: {
         user_id: '1',
         title: this.state.regist_title,
@@ -195,11 +191,11 @@ class App extends Component {
         record_ymd: ymd,
         category_id: this.state.regist_selected_category_id
       }
-    }).then((res)=>{
+    }).then((res) => {
       this.handleCloseRegitForm();
       this.getAllContents();
       console.log(res);
-    }).catch((e)=>{
+    }).catch((e) => {
       console.error(e);
       this.setState({
         status: false,
@@ -208,44 +204,45 @@ class App extends Component {
     });
   }
 
-  handleOpenRegistForm = () => { 
+  handleOpenRegistForm = () => {
     this.setState({
       openRegistForm: true,
       date: new Date(),
       regist_title: "",
       regist_comment: ""
     });
+    console.log(this.state);
   };
 
   handleCloseRegitForm = () => {
-    this.setState({openRegistForm: false});
+    this.setState({ openRegistForm: false });
   };
 
-  handleDateChange = (newDate: Date|null)=>{
-    this.setState({date: newDate});
+  handleDateChange = (newDate: Date | null) => {
+    this.setState({ date: newDate });
   }
 
-  handleColorChange = (newColor: Color)=>{
-    this.setState({color: newColor});
+  handleColorChange = (newColor: Color) => {
+    this.setState({ color: newColor });
   }
 
-  handleEditColorChange = (newColor: Color)=>{
-    this.setState({edit_color: newColor});
+  handleEditColorChange = (newColor: Color) => {
+    this.setState({ edit_color: newColor });
   }
 
-  handleRegist = (event: React.FormEvent<HTMLFormElement>)=>{
+  handleRegist = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let ymd;
-    if(typeof this.state.date === 'string'){
+    if (typeof this.state.date === 'string') {
       ymd = this.state.date;
-    }else{
+    } else {
       const y = this.state.date.getFullYear();
       const m = ('0' + (this.state.date.getMonth() + 1)).slice(-2);
       const d = ('0' + this.state.date.getDate()).slice(-2);
       ymd = y + '-' + m + '-' + d;
     }
     const formData = new FormData(event.currentTarget);
-    axios.get(registContent,{
+    axios.get(registContent, {
       params: {
         user_id: '1',
         title: formData.get('title'),
@@ -254,10 +251,10 @@ class App extends Component {
         record_ymd: ymd,
         category_id: this.state.regist_selected_category_id
       }
-    }).then((res)=>{
+    }).then((res) => {
       this.handleCloseRegitForm();
-      this.getAllContents(); 
-    }).catch((e)=>{
+      this.getAllContents();
+    }).catch((e) => {
       console.error(e);
       this.setState({
         status: false,
@@ -266,33 +263,33 @@ class App extends Component {
     });
   }
 
-  handleOpenEditForm=(record: recordObj)=>{
-      const y = record.record_ymd.split('-')[0]
-      const m = record.record_ymd.split('-')[1];
-      const d = record.record_ymd.split('-')[2];
-      this.setState({
-        openEditForm: true,
-        edit_id: record.id,
-        edit_title: record.title,
-        edit_comment: record.comment,
-        edit_color: createColor(record.color_code),
-        edit_ymd: `${m}/${d}/${y}`,
-        edit_selected_category_name: record.label,
-        edit_selected_category_id: record.value
-      });
+  handleOpenEditForm = (record: recordObj) => {
+    const y = record.record_ymd.split('-')[0]
+    const m = record.record_ymd.split('-')[1];
+    const d = record.record_ymd.split('-')[2];
+    this.setState({
+      openEditForm: true,
+      edit_id: record.id,
+      edit_title: record.title,
+      edit_comment: record.comment,
+      edit_color: createColor(record.color_code),
+      edit_ymd: `${m}/${d}/${y}`,
+      edit_selected_category_name: record.label,
+      edit_selected_category_id: record.value
+    });
   }
 
-  handleCloseEditForm=()=>{
-      this.setState({openEditForm: false});
+  handleCloseEditForm = () => {
+    this.setState({ openEditForm: false });
   }
 
-  handleEdit=(event: React.FormEvent<HTMLFormElement>)=>{
+  handleEdit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let ymd;
-    if(typeof this.state.edit_ymd === 'string'){
+    if (typeof this.state.edit_ymd === 'string') {
       const split_ymd = this.state.edit_ymd.split('/');
       ymd = split_ymd[2] + '-' + split_ymd[0] + '-' + split_ymd[1];
-    }else{
+    } else {
       const y = this.state.edit_ymd.getFullYear();
       const m = ('0' + (this.state.edit_ymd.getMonth() + 1)).slice(-2);
       const d = ('0' + this.state.edit_ymd.getDate()).slice(-2);
@@ -300,7 +297,7 @@ class App extends Component {
     }
 
     const formData = new FormData(event.currentTarget);
-    axios.get(editContent,{
+    axios.get(editContent, {
       params: {
         content_id: this.state.edit_id,
         title: formData.get('edit_title'),
@@ -309,11 +306,11 @@ class App extends Component {
         record_ymd: ymd,
         category_id: this.state.edit_selected_category_id
       }
-    }).then((res)=>{
+    }).then((res) => {
       this.handleCloseEditForm();
       this.getAllContents();
-      
-    }).catch((e)=>{
+
+    }).catch((e) => {
       console.error(e);
       this.setState({
         status: false,
@@ -322,16 +319,16 @@ class App extends Component {
     });
   }
 
-  handleDelete=()=>{
-    axios.get(deleteContent,{
+  handleDelete = () => {
+    axios.get(deleteContent, {
       params: {
         content_id: this.state.edit_id,
       }
-    }).then((res)=>{
+    }).then((res) => {
       this.handleCloseEditForm();
       this.getAllContents();
       console.log(res);
-    }).catch((e)=>{
+    }).catch((e) => {
       console.error(e);
       this.setState({
         status: false,
@@ -340,11 +337,11 @@ class App extends Component {
     });
   }
   handleEventClick = (event: any) => {
-    axios.get(contentById,{
+    axios.get(contentById, {
       params: {
         content_id: event.event.id,
       }
-    }).then((res)=>{
+    }).then((res) => {
       const record: recordObj = res.data[0][0];
       const y = record.record_ymd.split('-')[0]
       const m = record.record_ymd.split('-')[1];
@@ -358,8 +355,8 @@ class App extends Component {
         edit_ymd: `${m}/${d}/${y}`,
         edit_selected_category_name: record.label,
         edit_selected_category_id: record.value
-    });
-    }).catch((e)=>{
+      });
+    }).catch((e) => {
       console.error(e);
       this.setState({
         status: false,
@@ -368,7 +365,7 @@ class App extends Component {
     });
   }
 
-  handleDateClick = (event: any) => { 
+  handleDateClick = (event: any) => {
     this.setState({
       openRegistForm: true,
       regist_title: "",
@@ -377,26 +374,26 @@ class App extends Component {
     });
   }
 
-  handleSelect = (event: any)=>{
-    if(event == null){
+  handleSelect = (event: any) => {
+    if (event == null) {
       this.getAllContents();
       this.setState({
         selected_category: "",
         selected_category_id: ""
       });
-    }else{
+    } else {
       const selectedId: string = event.value;
       this.setState(
-        { 
+        {
           selected_category: event.label,
           selected_category_id: event.value
         }
       )
-      axios.get(categorizedContents,{
+      axios.get(categorizedContents, {
         params: {
           id: selectedId
         }
-      }).then((res)=>{
+      }).then((res) => {
         console.log(res.data[1]);
         this.setState({
           status: true,
@@ -413,20 +410,20 @@ class App extends Component {
     }
   }
 
-  handleRegistCategoryChange = (event: any) =>{
-    if(event != null){
-      if(event.__isNew__){
-        axios.get(registCategory,{
+  handleRegistCategoryChange = (event: any) => {
+    if (event != null) {
+      if (event.__isNew__) {
+        axios.get(registCategory, {
           params: {
             user_id: '1',
             category_name: event.label,
           }
-        }).then((res)=>{ 
+        }).then((res) => {
           this.setState({
             categories: res.data[0],
             regist_selected_category_id: res.data[1][0]
-        });
-        }).catch((e)=>{
+          });
+        }).catch((e) => {
           console.error(e);
           this.setState({
             status: false,
@@ -437,13 +434,13 @@ class App extends Component {
           regist_selected_category_name: event.label,
         });
         console.log(this.state.regist_selected_category_id);
-      }else{
+      } else {
         this.setState({
           regist_selected_category_name: event.label,
           regist_selected_category_id: event.value
         });
       }
-    }else{
+    } else {
       this.setState({
         regist_selected_category_name: "",
         regist_selected_category_id: ""
@@ -451,13 +448,13 @@ class App extends Component {
     }
   }
 
-  handleEditCategoryChange = (event: any) =>{
-    if(event != null){
+  handleEditCategoryChange = (event: any) => {
+    if (event != null) {
       this.setState({
         edit_selected_category_name: event.label,
         edit_selected_category_id: event.value
       });
-    }else{
+    } else {
       this.setState({
         edit_selected_category_name: "",
         edit_selected_category_id: ""
@@ -465,17 +462,17 @@ class App extends Component {
     }
   }
 
-  handleRegistTitleChange =(event: any) =>{
-    this.setState({regist_title: event.target.value});
+  handleRegistTitleChange = (event: any) => {
+    this.setState({ regist_title: event.target.value });
   }
 
-  handleRegistCommentChange =(event: any) =>{
-    this.setState({regist_comment: event.target.value});
+  handleRegistCommentChange = (event: any) => {
+    this.setState({ regist_comment: event.target.value });
   }
 
   render() {
     let events: any = [];
-    this.state.result.forEach((elem: recordObj)=>{
+    this.state.result.forEach((elem: recordObj) => {
       const event = {
         id: elem.id,
         title: elem.title,
@@ -487,12 +484,11 @@ class App extends Component {
 
     return (
       <div>
-        
+
         <FormControl sx={{ minWidth: 150 }}>
           <Select
             isClearable
             options={this.state.categories}
-            components={animatedComponents}
             onChange={this.handleSelect}
             styles={{
               menu: provided => ({ ...provided, zIndex: 9999 })
@@ -501,13 +497,14 @@ class App extends Component {
         </FormControl>
         <AddCircleIcon color="primary" fontSize="large" onClick={this.handleOpenRegistForm}></AddCircleIcon>
         <FullCalendar
-          plugins={[ dayGridPlugin, interactionPlugin ]}
+          plugins={[dayGridPlugin, interactionPlugin]}
           eventClick={this.handleEventClick}
           dateClick={this.handleDateClick}
           initialView="dayGridMonth"
           events={events}
         />
-        <Modal
+        {/* {this.state.openRegistForm? <RegistForm categories={this.state.categories} openRegistForm={this.state.openRegistForm}></RegistForm>: <div>test</div>} */}
+        {/* <Modal
           open={this.state.openRegistForm}
           onClose={this.handleCloseRegitForm}
           aria-labelledby="modal-modal-title"
@@ -577,14 +574,14 @@ class App extends Component {
               </div>
             </FormControl>
           </Box>
-        </Modal>
+        </Modal> */}
         <Modal
           open={this.state.openEditForm}
           onClose={this.handleCloseEditForm}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box component="form" onSubmit={this.handleEdit} noValidate sx={ style }>
+          <Box component="form" onSubmit={this.handleEdit} noValidate sx={style}>
             <FormControl fullWidth>
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 記録
@@ -594,28 +591,28 @@ class App extends Component {
                   label="date"
                   value={this.state.edit_ymd}
                   onChange={(newValue: any) => {
-                    this.setState({edit_ymd: newValue});
+                    this.setState({ edit_ymd: newValue });
                   }}
                   renderInput={(params: any) => <TextField {...params} />}
                 />
               </LocalizationProvider>
-              <Select 
+              <Select
                 isClearable
                 options={this.state.categories}
                 styles={{
                   menu: provided => ({ ...provided, zIndex: 9999 })
                 }}
                 onChange={this.handleEditCategoryChange}
-                defaultValue={{value: this.state.edit_selected_category_id, label: this.state.edit_selected_category_name}}
+                defaultValue={{ value: this.state.edit_selected_category_id, label: this.state.edit_selected_category_name }}
               ></Select>
               <ColorPicker
-                value={this.state.edit_color} 
+                value={this.state.edit_color}
                 onChange={this.handleEditColorChange}
                 palette={palette}
-                hideTextfield/>
+                hideTextfield />
               <div>
-                <TextField 
-                  id="title-field" 
+                <TextField
+                  id="title-field"
                   label="Title"
                   name="edit_title"
                   defaultValue={this.state.edit_title}
@@ -624,30 +621,30 @@ class App extends Component {
                 </TextField>
               </div>
               <TextField
-                  id="comment-field"
-                  label="Comment"
-                  name="edit_comment"
-                  multiline
-                  rows={5}
-                  defaultValue={this.state.edit_comment}
+                id="comment-field"
+                label="Comment"
+                name="edit_comment"
+                multiline
+                rows={5}
+                defaultValue={this.state.edit_comment}
               />
               <div>
                 <Stack spacing={2} direction="row">
                   <Button
-                  fullWidth
-                  type="button"
-                  variant="contained" 
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={this.handleDelete}
+                    fullWidth
+                    type="button"
+                    variant="contained"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={this.handleDelete}
                   >
                     削除
                   </Button>
                   <Button
-                  fullWidth
-                  type="submit"
-                  variant="contained"
-                  startIcon={<ChangeCircleIcon />}
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    startIcon={<ChangeCircleIcon />}
                   >
                     更新
                   </Button>
