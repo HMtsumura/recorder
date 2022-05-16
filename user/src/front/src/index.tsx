@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Calendar from './components/Calendar'
+import Calendar from './components/Calendar';
+import SignIn from './SignIn';
+import SignUp from './Signup';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <App /> */}
+    <SignIn />
+    <SignUp />
     <Calendar />
   </React.StrictMode>,
   document.getElementById('root')
