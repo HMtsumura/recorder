@@ -4,8 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Calendar from './components/Calendar';
-import SignIn from './SignIn';
-import SignUp from './Signup';
+import SignIn from './components/SignIn';
+import SignUp from './components/Signup';
 import { BrowserRouter, Route, Routes} from 'react-router-dom';
 
 ReactDOM.render(

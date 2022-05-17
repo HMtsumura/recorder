@@ -10,6 +10,7 @@ import { createColor } from 'material-ui-color';
 import Select from 'react-select';
 import FormControl from '@mui/material/FormControl';
 import { Link } from 'react-router-dom';
+import MenuBar from './MenuBar';
 
 interface recordObj {
     id: string,
@@ -130,6 +131,7 @@ export default function Calender() {
     }
     return (
         <div>
+            <MenuBar />
             <Link to="signup">SignUp</Link>
             <Link to="signin">SignIn</Link>
             <FormControl sx={{ minWidth: 150 }}>
