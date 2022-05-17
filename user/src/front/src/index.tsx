@@ -6,12 +6,17 @@ import reportWebVitals from './reportWebVitals';
 import Calendar from './components/Calendar';
 import SignIn from './SignIn';
 import SignUp from './Signup';
+import { BrowserRouter, Route, Routes} from 'react-router-dom';
 
 ReactDOM.render(
   <React.StrictMode>
-    <SignIn />
-    <SignUp />
-    <Calendar />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Calendar />} />
+        <Route path="signin" element={<SignIn />} />
+        <Route path="signup" element={<SignUp />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );

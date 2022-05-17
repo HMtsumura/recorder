@@ -9,6 +9,7 @@ import { MyGlobalContext, useOepnRegistForm } from '../contexts/openRegistForm'
 import { createColor } from 'material-ui-color';
 import Select from 'react-select';
 import FormControl from '@mui/material/FormControl';
+import { Link } from 'react-router-dom';
 
 interface recordObj {
     id: string,
@@ -129,6 +130,8 @@ export default function Calender() {
     }
     return (
         <div>
+            <Link to="signup">SignUp</Link>
+            <Link to="signin">SignIn</Link>
             <FormControl sx={{ minWidth: 150 }}>
                 <Select
                     isClearable
