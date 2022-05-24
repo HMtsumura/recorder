@@ -12,6 +12,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
+
+const signUp = 'http://localhost:3000/users/signUp';
 
 function Copyright(props: any) {
   return (
@@ -32,9 +35,16 @@ export default function SignUp() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+    axios.get(signUp, {
+      params: {
+        user_name: data.get('email'),
+        password: data.get('password'),
+        repassword: data.get('repassword'),
+      }
+    }).then((res) => {
+      console.log(res);
+    }).catch((e) => {
+      console.error(e);
     });
   };
 
@@ -77,6 +87,16 @@ export default function SignUp() {
               id="password"
               autoComplete="current-password"
             />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="repassword"
+              label="Password"
+              type="password"
+              id="repassword"
+              autoComplete="current-password"
+            />
             {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
@@ -89,18 +109,11 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
-            {/* <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
+            <Grid item>
+                <Link href="/signin" variant="body2">
+                  {"Already have an account? Sign In"}
                 </Link>
               </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid> */}
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
