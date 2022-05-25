@@ -33,7 +33,7 @@ router.get('/signUp', async function(req, res, next) {
       await newUser.save();
       console.log(newUser.id);
       // req.session.userid = newUser.id;
-      res.send(newUser.id);
+      res.send([newUser.id]);
   } else {
     res.send('password unmatched');
     // res.render("signup", {

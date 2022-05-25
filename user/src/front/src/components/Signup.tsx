@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const signUp = 'http://localhost:3000/users/signUp';
 
@@ -32,6 +33,7 @@ function Copyright(props: any) {
 const theme = createTheme();
 
 export default function SignUp() {
+  const navigate = useNavigate();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -43,6 +45,7 @@ export default function SignUp() {
       }
     }).then((res) => {
       console.log(res);
+      navigate('/');
     }).catch((e) => {
       console.error(e);
     });
