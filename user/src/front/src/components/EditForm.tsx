@@ -15,6 +15,8 @@ import DeleteButton from './DeleteButton';
 import EditButton from './EditButton';
 import AsyncSelect, { useAsync } from 'react-select/async';
 import { resolve } from 'path';
+import { useLocation } from "react-router-dom";
+import { LocationOnTwoTone } from '@mui/icons-material';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -34,7 +36,9 @@ const getContents = 'http://localhost:3000/contents';
 
 export default function EditForm() {
     const ctx = useContext(MyGlobalContext);
-
+    const location = useLocation();
+    ctx.setUserId(location.state as string);
+    console.log(ctx);
     function handleEdit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         let ymd;
@@ -56,7 +60,8 @@ export default function EditForm() {
                 comment: formData.get('comment'),
                 color_code: ctx.color.hex,
                 record_ymd: ymd,
-                category_id: ctx.categoryId
+                category_id: ctx.categoryId,
+                user_id: ctx.userId
             }
         }).then((res) => {
             handleCloseForm();
@@ -77,7 +82,11 @@ export default function EditForm() {
     };
 
     function getAllContents() {
-        axios.get(getContents)
+        axios.get(getContents,{
+            params:{
+                user_id: ctx.userId
+            }
+        })
             .then((res) => {
                 console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);
@@ -93,7 +102,7 @@ export default function EditForm() {
             if (event.__isNew__) {
                 axios.get(registCategory, {
                     params: {
-                        user_id: '1',
+                        user_id: ctx.userId,
                         category_name: event.label,
                     }
                 }).then((res) => {

@@ -23,7 +23,7 @@ export default function RegistButton() {
         }
         axios.get(registContent, {
             params: {
-                user_id: '1',
+                user_id: ctx.userId,
                 title: ctx.title,
                 comment: ctx.comment,
                 color_code: ctx.color.hex,
@@ -49,7 +49,11 @@ export default function RegistButton() {
     };
 
     function getAllContents() {
-        axios.get(getContents)
+        axios.get(getContents, {
+            params: {
+                user_id: ctx.userId,
+            }
+        })
             .then((res) => {
                 console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);

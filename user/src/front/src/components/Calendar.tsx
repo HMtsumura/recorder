@@ -10,6 +10,7 @@ import { createColor } from 'material-ui-color';
 import Select from 'react-select';
 import FormControl from '@mui/material/FormControl';
 import { Link } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import MenuBar from './MenuBar';
 
 interface recordObj {
@@ -28,6 +29,7 @@ const categorizedContents = 'http://localhost:3000/contents/categorized';
 
 export default function Calender() {
     const ctx = useOepnRegistForm();
+    const location = useLocation();
     const [selectedCategoryName, setSelectedCategoryName] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
@@ -43,7 +45,11 @@ export default function Calender() {
     });
 
     function getAllContents() {
-        axios.get(getContents)
+        axios.get(getContents,{
+            params:{
+                user_id: location.state
+            }
+        })
             .then((res) => {
                 console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);
@@ -77,7 +83,8 @@ export default function Calender() {
             setSelectedCategoryName(event.label);
             axios.get(categorizedContents, {
                 params: {
-                    id: selectedId
+                    id: selectedId,
+                    user_id: location.state
                 }
             }).then((res) => {
                 console.log(res.data[1]);
@@ -132,8 +139,6 @@ export default function Calender() {
     return (
         <div>
             <MenuBar />
-            <Link to="signup">SignUp</Link>
-            <Link to="signin">SignIn</Link>
             <FormControl sx={{ minWidth: 150 }}>
                 <Select
                     isClearable

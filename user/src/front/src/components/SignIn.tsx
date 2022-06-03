@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,14 +13,15 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+const signUp = 'http://localhost:3000/users/signIn';
 
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      {/* <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '} */}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -28,13 +30,20 @@ function Copyright(props: any) {
 
 const theme = createTheme();
 
-export default function SignIn() {
+export default function SignIn() { 
+  const navigate = useNavigate();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+    axios.get(signUp, {
+      params: {
+        user_name: data.get('email'),
+        password: data.get('password'),
+      }
+    }).then((res) => {
+      navigate('/', {state: res.data[0]});
+    }).catch((e) => {
+      console.error(e);
     });
   };
 

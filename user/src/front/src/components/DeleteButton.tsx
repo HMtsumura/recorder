@@ -34,7 +34,11 @@ export default function DeleteButton() {
     };
 
     function getAllContents() {
-        axios.get(getContents)
+        axios.get(getContents,{
+            params:{
+                user_id: ctx.userId
+            }
+        })
             .then((res) => {
                 console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);

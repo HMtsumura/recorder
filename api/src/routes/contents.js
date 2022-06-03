@@ -5,32 +5,8 @@ const db = require('../models');
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
-  const contents = await db.sequelize.query(`select 
-                                              co.id
-                                            , co.title
-                                            , co.color_code
-                                            , co.comment
-                                            , co.record_ymd
-                                            , u.user_name
-                                            , ca.category_name
-                                            , ca.id AS category_id
-                                        from  Contents AS co
-                                        ,     Users AS u
-                                        ,     Categories ca
-                                        where co.user_id = u.id
-                                        and   co.category_id = ca.id;`);
-
-  const categories = await db.sequelize.query(`select 
-                                                ca.id AS value
-                                              , ca.category_name as label
-                                              from  Categories  AS  ca
-                                              where ca.user_id  = '1'`);
-  // console.log(categories);
-  res.send([contents[0], categories[0]]);
-});
-
-router.get('/categorized', async function(req, res, next) {
-  const category_id = req.query.id;
+  const user_id = req.query.user_id;
+  console.log(user_id);
   const contents = await db.sequelize.query(`select 
                                               co.id
                                             , co.title
@@ -45,13 +21,41 @@ router.get('/categorized', async function(req, res, next) {
                                         ,     Categories ca
                                         where co.user_id = u.id
                                         and   co.category_id = ca.id
-                                        and   co.category_id = '${category_id}';`);
+                                        and   co.user_id = '${user_id}';`);
+
+  const categories = await db.sequelize.query(`select 
+                                                ca.id AS value
+                                              , ca.category_name as label
+                                              from  Categories  AS  ca
+                                              where ca.user_id  = '${user_id}';`);
+  res.send([contents[0], categories[0]]);
+});
+
+router.get('/categorized', async function(req, res, next) {
+  const category_id = req.query.id;
+  const user_id = req.query.user_id;
+  const contents = await db.sequelize.query(`select 
+                                              co.id
+                                            , co.title
+                                            , co.color_code
+                                            , co.comment
+                                            , co.record_ymd
+                                            , u.user_name
+                                            , ca.category_name
+                                            , ca.id AS category_id
+                                        from  Contents AS co
+                                        ,     Users AS u
+                                        ,     Categories ca
+                                        where co.user_id = u.id
+                                        and   co.category_id = ca.id
+                                        and   co.category_id = '${category_id}'
+                                        and   co.user_id = '${user_id}';`);
 
   const categories = await db.sequelize.query(`select 
                                                 ca.id AS value
                                               , ca.category_name  AS label
                                               from  Categories  AS  ca
-                                              where ca.user_id  = '1'`);
+                                              where ca.user_id  = '${user_id}';`);
   console.log(contents);
   res.send([contents[0], categories[0]]);
 });
@@ -79,6 +83,7 @@ router.get('/contentById', async function(req, res, next) {
 
 router.get('/regist', async function(req, res, next) {
   const user_id = req.query.user_id;
+  console.log('user_id', user_id);
   const title = req.query.title;
   const comment = req.query.comment;
   const category_id = req.query.category_id;
@@ -100,6 +105,8 @@ router.get('/regist', async function(req, res, next) {
 });
 
 router.get('/edit', async function(req, res, next) {
+  const user_id = req.query.user_id;
+  console.log('user_id', user_id);
   const content_id = req.query.content_id;
   const title = req.query.title;
   const comment = req.query.comment;

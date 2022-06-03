@@ -44,8 +44,7 @@ export default function SignUp() {
         repassword: data.get('repassword'),
       }
     }).then((res) => {
-      console.log(res);
-      navigate('/');
+      navigate('/', {state: res.data[0]});
     }).catch((e) => {
       console.error(e);
     });

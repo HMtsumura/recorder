@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import CreatableSelect from 'react-select/creatable';
 import { MyGlobalContext } from '../contexts/openRegistForm';
 import { createColor } from 'material-ui-color';
+import { useLocation } from "react-router-dom";
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -30,7 +31,8 @@ const getContents = 'http://localhost:3000/contents';
 
 export default function RegistForm() {
     const ctx = useContext(MyGlobalContext);
-
+    const location = useLocation();
+    ctx.setUserId(location.state as string);
     function handleRegist(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         let ymd;
@@ -45,7 +47,7 @@ export default function RegistForm() {
         const formData = new FormData(event.currentTarget);
         axios.get(registContent, {
             params: {
-                user_id: '1',
+                user_id: ctx.userId,
                 title: formData.get('title'),
                 comment: formData.get('comment'),
                 color_code: ctx.color.hex,
@@ -70,9 +72,12 @@ export default function RegistForm() {
     };
 
     function getAllContents() {
-        axios.get(getContents)
-            .then((res) => {
-                console.log(res.data[1]);
+        axios.get(getContents,{
+            params:{
+                user_id: location.state
+            }
+        })
+            .then((res) => { 
                 ctx.setRecords(res.data[0]);
                 ctx.setCategories(res.data[1]);
             })
@@ -86,7 +91,7 @@ export default function RegistForm() {
             if (event.__isNew__) {
                 axios.get(registCategory, {
                     params: {
-                        user_id: '1',
+                        user_id: ctx.userId,
                         category_name: event.label,
                     }
                 }).then((res) => {
