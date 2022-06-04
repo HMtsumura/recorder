@@ -9,7 +9,6 @@ import { MyGlobalContext, useOepnRegistForm } from '../contexts/openRegistForm'
 import { createColor } from 'material-ui-color';
 import Select from 'react-select';
 import FormControl from '@mui/material/FormControl';
-import { Link } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import MenuBar from './MenuBar';
 
@@ -57,26 +56,18 @@ export default function Calender() {
             })
             .catch((e) => {
                 console.error(e);
-                // this.setState({
-                //   status: false,
-                //   result: e,
-                // });
             });
     };
 
     useEffect(() => {
         getAllContents();
-    }, []);
+    });
 
     function handleSelect(event: any) {
         if (event == null) {
             getAllContents();
             setSelectedCategoryId("");
             setSelectedCategoryName("");
-            //   setState({
-            //     selected_category: "",
-            //     selected_category_id: ""
-            //   });
         } else {
             const selectedId: string = event.value;
             setSelectedCategoryId(event.value);

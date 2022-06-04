@@ -13,10 +13,7 @@ import TitleInput from './TitleInput';
 import CommentInput from './CommentInput';
 import DeleteButton from './DeleteButton';
 import EditButton from './EditButton';
-import AsyncSelect, { useAsync } from 'react-select/async';
-import { resolve } from 'path';
 import { useLocation } from "react-router-dom";
-import { LocationOnTwoTone } from '@mui/icons-material';
 
 const style = {
     position: 'absolute' as 'absolute',

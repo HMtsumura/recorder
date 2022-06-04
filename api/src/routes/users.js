@@ -37,10 +37,6 @@ router.get('/signUp', async function(req, res, next) {
       password: hashPassword
   }});
   if(user.length !== 0){
-    // res.render("signup", {
-    //     title: "Sign up",
-    //     errorMessage: ["このユーザ名は既に使われています"],
-    // });
     res.send('already existed');
   }else if(password === repassword){
     const hashPassword = await bcrypt.hash(password, 10);

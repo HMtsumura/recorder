@@ -32,13 +32,14 @@ const style = {
 };
 
 // TODO メソッド名・変数名考える必要あり
-// TODO 要素のコンポーネント化
-// TODO classじゃなくてexport default functionでreturnで返すようにする  
-// TODO ユーザー作成・編集
-// TODO バリデーション
+// TODO ユーザー編集
+// TODO バリデーション　サインイン・サインアップ・レコード入力・編集
 // TODO デザイン
 // TODO セッション
 // TODO SQLインジェクション対策等
+// TODO ユーザーの重複登録ができないようにする
+// TODO ログインに失敗した時の処理
+// TODO 
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
 const registContent = 'http://localhost:3000/contents/regist';
