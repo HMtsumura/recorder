@@ -12,16 +12,21 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { SubmitHandler, useForm } from 'react-hook-form'
 
 const signUp = 'http://localhost:3000/users/signUp';
+
+// フォームの型
+interface SignUpFormInput {
+  email: string
+  name: string
+  password: string
+}
 
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      {/* <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '} */}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -32,6 +37,7 @@ const theme = createTheme();
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { register } = useForm<SignUpFormInput>()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -97,10 +103,6 @@ export default function SignUp() {
               id="repassword"
               autoComplete="current-password"
             />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
             <Button
               type="submit"
               fullWidth
