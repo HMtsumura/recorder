@@ -61,7 +61,7 @@ export default function Calender() {
 
     useEffect(() => {
         getAllContents();
-    });
+    }, []);
 
     function handleSelect(event: any) {
         if (event == null) {

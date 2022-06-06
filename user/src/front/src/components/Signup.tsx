@@ -12,7 +12,26 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup'
+
+// バリデーションルール
+const schema = yup.object({
+  email: yup
+    .string()
+    .required('必須だよ')
+    .email('正しいメールアドレス入力してね'),
+  name: yup.string().required('必須だよ'),
+  password: yup
+    .string()
+    .required('必須だよ')
+    .min(6, '少ないよ')
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&].*$/,
+      'パスワード弱いよ'
+    ),
+})
 
 const signUp = 'http://localhost:3000/users/signUp';
 
@@ -37,7 +56,9 @@ const theme = createTheme();
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const { register } = useForm<SignUpFormInput>()
+  const { register, formState: { errors } } = useForm<SignUpFormInput>({
+    resolver: yupResolver(schema),
+  });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -79,19 +100,25 @@ export default function SignUp() {
               fullWidth
               id="email"
               label="Email Address"
-              name="email"
+              // name="email"
               autoComplete="email"
               autoFocus
+              {...register('email')}
+              error={"email" in errors}
+              helperText={errors.name?.message}
             />
             <TextField
               margin="normal"
               required
               fullWidth
-              name="password"
+              // name="password"
               label="Password"
               type="password"
               id="password"
               autoComplete="current-password"
+              {...register('password')}
+              error={"password" in errors}
+              helperText={errors.name?.message}
             />
             <TextField
               margin="normal"
