@@ -4,42 +4,46 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup'
+import { yupResolver } from '@hookform/resolvers/yup';
 
 // バリデーションルール
-const schema = yup.object({
+const schema = yup.object().shape({
   email: yup
     .string()
-    .required('必須だよ')
-    .email('正しいメールアドレス入力してね'),
-  name: yup.string().required('必須だよ'),
+    .required('required')
+    .email('wrong email address'),
   password: yup
     .string()
-    .required('必須だよ')
-    .min(6, '少ないよ')
+    .required('required')
+    .min(6, 'at least 6 characters')
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&].*$/,
-      'パスワード弱いよ'
+      'weak passwrod'
     ),
-})
+  repassword: yup
+      .string()
+      .oneOf([yup.ref('password')], 'passwordが一致しません。')
+      .required('required')
+      ,
+});
 
 const signUp = 'http://localhost:3000/users/signUp';
 
 // フォームの型
 interface SignUpFormInput {
   email: string
-  name: string
   password: string
+  repassword: string
 }
 
 function Copyright(props: any) {
@@ -56,25 +60,26 @@ const theme = createTheme();
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const { register, formState: { errors } } = useForm<SignUpFormInput>({
+  const { handleSubmit, formState: { errors }, control } = useForm<SignUpFormInput>({
     resolver: yupResolver(schema),
   });
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+
+  // フォーム送信時の処理
+  const onSubmit: SubmitHandler<SignUpFormInput> = (data, event) => {
     axios.get(signUp, {
       params: {
-        user_name: data.get('email'),
-        password: data.get('password'),
-        repassword: data.get('repassword'),
+        user_name: data.email,
+        password: data.password,
+        repassword: data.repassword
       }
     }).then((res) => {
+      console.log(res);
       navigate('/', {state: res.data[0]});
     }).catch((e) => {
       console.error(e);
     });
-  };
-
+  }
+  
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -93,34 +98,62 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              // name="email"
-              autoComplete="email"
-              autoFocus
-              {...register('email')}
-              error={"email" in errors}
-              helperText={errors.name?.message}
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
+          <Controller
+              name="email"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  type="email"
+                  label="Email Address"
+                  id="email"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  error={!!errors.email}
+                  helperText={errors.email ? errors.email?.message : ""}
+                />
+              )}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              // name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              {...register('password')}
-              error={"password" in errors}
-              helperText={errors.name?.message}
+            <Controller
+              name="password"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  type="password"
+                  label="Password"
+                  id="password"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  error={!!errors.password}
+                  helperText={errors.password ? errors.password?.message : ""}
+                />
+              )}
             />
-            <TextField
+            <Controller
+              name="repassword"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  type="password"
+                  label="Repassword"
+                  id="repassword"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  error={!!errors.repassword}
+                  helperText={errors.repassword ? errors.repassword?.message : ""}
+                />
+              )}
+            />
+            {/* <TextField
               margin="normal"
               required
               fullWidth
@@ -129,7 +162,7 @@ export default function SignUp() {
               type="password"
               id="repassword"
               autoComplete="current-password"
-            />
+            /> */}
             <Button
               type="submit"
               fullWidth

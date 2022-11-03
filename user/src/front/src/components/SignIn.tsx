@@ -14,9 +14,9 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { SubmitHandler, UnpackNestedValue, useForm, Controller } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup'
+import { yupResolver } from '@hookform/resolvers/yup';
 
 // バリデーションルール
 const schema = yup.object().shape({
@@ -32,7 +32,7 @@ const schema = yup.object().shape({
     //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&].*$/,
     //   'パスワード弱いよ'
     // ),
-})
+});
 
 const signUp = 'http://localhost:3000/users/signIn';
 
@@ -56,7 +56,7 @@ const theme = createTheme();
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors }, control } = useForm<SignInFormInput>({
+  const { handleSubmit, formState: { errors }, control } = useForm<SignInFormInput>({
     resolver: yupResolver(schema),
   });
 
