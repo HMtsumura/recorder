@@ -35,11 +35,12 @@ const style = {
 // TODO ユーザー編集
 // TODO バリデーション　サインイン・サインアップ・レコード入力・編集
 // TODO デザイン
-// TODO セッション
+// TODO セッション管理して、セッションない間はURL直うちでもログイン画面に戻されるようにする
 // TODO SQLインジェクション対策等
 // TODO ユーザーの重複登録ができないようにする
 // TODO ログインに失敗した時の処理
-// TODO 
+// TODO フロントで期待する値が入力されてない時のエラー(必須項目入力せずに登録しようとしたりとか)、サーバー側で受け付けない場合のエラー(ユーザーの重複など)
+
 const server = 'http://localhost:3000/contents';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
 const registContent = 'http://localhost:3000/contents/regist';

@@ -63,7 +63,6 @@ export default function EditForm() {
         }).then((res) => {
             handleCloseForm();
             getAllContents();
-
         }).catch((e) => {
             console.error(e);
         });

@@ -25,6 +25,10 @@ export default function ColorPallete() {
         ctx.setColor(newColor);
     }
 
+    function handleSelected(){
+        console.log('open');
+    }
+
     return (
         <ColorPicker
             value={ctx.color}

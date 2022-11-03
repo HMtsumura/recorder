@@ -14,8 +14,33 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { SubmitHandler, UnpackNestedValue, useForm, Controller } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup'
+
+// バリデーションルール
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .required('required'),
+    // .email('wrong email address'),
+  password: yup
+    .string()
+    .required('required')
+    .min(4, '少ないよ')
+    // .matches(
+    //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&].*$/,
+    //   'パスワード弱いよ'
+    // ),
+})
 
 const signUp = 'http://localhost:3000/users/signIn';
+
+// フォームの型
+interface SignInFormInput {
+  email: string
+  password: string
+}
 
 function Copyright(props: any) {
   return (
@@ -29,22 +54,26 @@ function Copyright(props: any) {
 
 const theme = createTheme();
 
-export default function SignIn() { 
+export default function SignIn() {
   const navigate = useNavigate();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+  const { register, handleSubmit, formState: { errors }, control } = useForm<SignInFormInput>({
+    resolver: yupResolver(schema),
+  });
+
+  // フォーム送信時の処理
+  const onSubmit: SubmitHandler<SignInFormInput> = (data, event) => {
     axios.get(signUp, {
       params: {
-        user_name: data.get('email'),
-        password: data.get('password'),
+        user_name: data.email,
+        password: data.password,
       }
     }).then((res) => {
+      console.log(res);
       navigate('/', {state: res.data[0]});
     }).catch((e) => {
       console.error(e);
     });
-  };
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -64,26 +93,42 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
+          <Box component="form" onClick={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
+            <Controller
               name="email"
-              autoComplete="email"
-              autoFocus
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  type="email"
+                  label="Email Address"
+                  id="email"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  error={!!errors.email}
+                  helperText={errors.email ? errors.email?.message : ""}
+                />
+              )}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
+            <Controller
               name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  type="password"
+                  label="Password"
+                  id="password"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  error={!!errors.password}
+                  helperText={errors.password ? errors.password?.message : ""}
+                />
+              )}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -94,6 +139,7 @@ export default function SignIn() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+            onClick={handleSubmit(onSubmit)}
             >
               Sign In
             </Button>

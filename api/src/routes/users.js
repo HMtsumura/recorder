@@ -14,15 +14,15 @@ router.get('/signIn', async function(req, res, next) {
   const user = await db.User.findAll({where: {
     user_name: user_name,
   }});
-  console.log(user[0].id);  
-if(user.length !== 0){
+
+  if(user.length !== 0){
     if(bcrypt.compareSync(password, user[0].password)){
       res.send([user[0].id]);  
     }else{
-      res.send(['wrong password']);
+      res.status(404).send({ERROR_MESSAGE: 'wrong password'});
     }
   }else{
-    res.send(['not found']);
+    res.status(404).send({ERROR_MESSAGE: 'not found'});
   }
 });
 router.get('/signUp', async function(req, res, next) {
@@ -49,7 +49,7 @@ router.get('/signUp', async function(req, res, next) {
       // req.session.userid = newUser.id;
       res.send([newUser.id]);
   } else {
-    res.send('password unmatched');
+    res.status(404).send({ERROR_MESSAGE: 'password unmatched'});
     // res.render("signup", {
     //   title: "Sign up",
     //   errorMessage: ["パスワードが一致しません"],
