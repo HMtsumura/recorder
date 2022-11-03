@@ -153,16 +153,6 @@ export default function SignUp() {
                 />
               )}
             />
-            {/* <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="repassword"
-              label="Password"
-              type="password"
-              id="repassword"
-              autoComplete="current-password"
-            /> */}
             <Button
               type="submit"
               fullWidth
