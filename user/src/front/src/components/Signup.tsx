@@ -66,7 +66,7 @@ export default function SignUp() {
 
   // フォーム送信時の処理
   const onSubmit: SubmitHandler<SignUpFormInput> = (data, event) => {
-    axios.get(signUp, {
+    axios.post(signUp, {
       params: {
         user_name: data.email,
         password: data.password,
@@ -74,7 +74,7 @@ export default function SignUp() {
       }
     }).then((res) => {
       console.log(res);
-      navigate('/', {state: res.data[0]});
+      navigate('/', {state: {token: res.data['token']}});
     }).catch((e) => {
       console.error(e);
     });
