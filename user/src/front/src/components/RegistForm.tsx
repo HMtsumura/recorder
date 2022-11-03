@@ -29,10 +29,15 @@ const registContent = 'http://localhost:3000/contents/regist';
 const registCategory = 'http://localhost:3000/categories/regist';
 const getContents = 'http://localhost:3000/contents';
 
+type State = {
+    token: string
+}
+
 export default function RegistForm() {
     const ctx = useContext(MyGlobalContext);
     const location = useLocation();
-    ctx.setUserId(location.state as string);
+    const state = location.state as State;
+    ctx.setToken(state['token']);
     function handleRegist(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         let ymd;
@@ -47,7 +52,7 @@ export default function RegistForm() {
         const formData = new FormData(event.currentTarget);
         axios.get(registContent, {
             params: {
-                user_id: ctx.userId,
+                token: ctx.token,
                 title: formData.get('title'),
                 comment: formData.get('comment'),
                 color_code: ctx.color.hex,
@@ -91,7 +96,7 @@ export default function RegistForm() {
             if (event.__isNew__) {
                 axios.get(registCategory, {
                     params: {
-                        user_id: ctx.userId,
+                        token: ctx.token,
                         category_name: event.label,
                     }
                 }).then((res) => {

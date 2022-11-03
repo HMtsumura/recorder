@@ -36,7 +36,7 @@ export default function DeleteButton() {
     function getAllContents() {
         axios.get(getContents,{
             params:{
-                user_id: ctx.userId
+                token: ctx.token
             }
         })
             .then((res) => {

@@ -21,22 +21,26 @@ export default function RegistButton() {
             const d = ('0' + ctx.date.getDate()).slice(-2);
             ymd = y + '-' + m + '-' + d;
         }
-        axios.get(registContent, {
+
+        axios.post(registContent, {
             params: {
-                user_id: ctx.userId,
                 title: ctx.title,
                 comment: ctx.comment,
                 color_code: ctx.color.hex,
                 record_ymd: ymd,
                 category_id: ctx.categoryId
             }
-        }).then((res) => {
-            handleCloseForm();
-            getAllContents();
-            console.log(res);
-        }).catch((e) => {
-            console.error(e);
-        });
+        },
+            {
+                headers: { Authorization: `Bearer ${ctx.token}` },
+            })
+            .then((res) => {
+                handleCloseForm();
+                getAllContents();
+                console.log(res);
+            }).catch((e) => {
+                console.error(e);
+            });
     }
 
     function handleCloseForm() {
@@ -49,11 +53,12 @@ export default function RegistButton() {
     };
 
     function getAllContents() {
-        axios.get(getContents, {
-            params: {
-                user_id: ctx.userId,
-            }
-        })
+        axios.post(getContents, {
+            token: ctx.token
+        },
+            {
+                headers: { Authorization: `Bearer ${ctx.token}` },
+            })
             .then((res) => {
                 console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);

@@ -56,12 +56,6 @@ export default function Calender() {
     });
 
     function getAllContents() {
-        // axios.get(getContents, {
-        //     params: {
-        //         user_id: state['userId'],
-        //         token: state['token']
-        //     }
-        // })
         axios.post(getContents, {
             token: state['token']
         },

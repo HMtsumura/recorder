@@ -17,8 +17,8 @@ interface recordObj {
 }
 
 export type GlobalContent = {
-    userId: string
-    setUserId: (data: string) => void
+    token: string
+    setToken: (data: string) => void
     openForm: boolean
     setOpenForm: (isOpen: boolean) => void
     date: any
@@ -45,8 +45,8 @@ export type GlobalContent = {
 export const MyGlobalContext = React.createContext<GlobalContent>({
     openForm: false, // set a default value
     setOpenForm: () => { },
-    userId: "",
-    setUserId: () => {},
+    token: "",
+    setToken: () => {},
     date: new Date(),
     setDate: () => { },
     categories: [],
@@ -73,7 +73,7 @@ export const useOepnRegistForm = (): GlobalContent => {
     // state名はThemeContext typeのプロパティに合わせる。
     const [openForm, setOpenForm] = useState(false);
     
-    const [userId, setUserId] = useState("");
+    const [token, setToken] = useState("");
 
     const [date, setDate] = useState(new Date());
 
@@ -97,8 +97,8 @@ export const useOepnRegistForm = (): GlobalContent => {
     return {
         openForm,
         setOpenForm,
-        userId,
-        setUserId,
+        token,
+        setToken,
         date,
         setDate,
         categories,

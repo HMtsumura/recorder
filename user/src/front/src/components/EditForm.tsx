@@ -34,7 +34,7 @@ const getContents = 'http://localhost:3000/contents';
 export default function EditForm() {
     const ctx = useContext(MyGlobalContext);
     const location = useLocation();
-    ctx.setUserId(location.state as string);
+    ctx.setToken(location.state as string);
     console.log(ctx);
     function handleEdit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -58,7 +58,7 @@ export default function EditForm() {
                 color_code: ctx.color.hex,
                 record_ymd: ymd,
                 category_id: ctx.categoryId,
-                user_id: ctx.userId
+                token: ctx.token
             }
         }).then((res) => {
             handleCloseForm();
@@ -80,7 +80,7 @@ export default function EditForm() {
     function getAllContents() {
         axios.get(getContents,{
             params:{
-                user_id: ctx.userId
+                token: ctx.token
             }
         })
             .then((res) => {
@@ -98,7 +98,7 @@ export default function EditForm() {
             if (event.__isNew__) {
                 axios.get(registCategory, {
                     params: {
-                        user_id: ctx.userId,
+                        token: ctx.token,
                         category_name: event.label,
                     }
                 }).then((res) => {

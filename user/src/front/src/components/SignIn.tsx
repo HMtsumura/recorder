@@ -22,8 +22,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 const schema = yup.object().shape({
   email: yup
     .string()
-    .required('required')
-    .email('wrong email address'),
+    .required('required'),
+    // .email('wrong email address'),
   password: yup
     .string()
     .required('required')

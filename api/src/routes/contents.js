@@ -85,23 +85,27 @@ router.get('/contentById', async function(req, res, next) {
   res.send([contents[0]]);
 });
 
-router.get('/regist', async function(req, res, next) {
-  const user_id = req.query.user_id;
-  console.log('user_id', user_id);
-  const title = req.query.title;
-  const comment = req.query.comment;
-  const category_id = req.query.category_id;
-  const record_ymd =  req.query.record_ymd;
-  const color_code = req.query.color_code;
+router.post('/regist', verifyToken, async function(req, res, next) {
+  const user = await db.User.findAll({where: {
+    user_name: req.decoded['user_name']
+  }});
+  
+  const user_id = user[0].id;
+
+  const title = req.body.params.title;
+  const comment = req.body.params.comment;
+  const category_id = req.body.params.category_id;
+  const record_ymd =  req.body.params.record_ymd;
+  const color_code = req.body.params.color_code;
   const today = new Date();
   const createdAt = [
     today.getFullYear(),
     ('0' + (today.getMonth() + 1)).slice(-2),
     ('0' + today.getDate()).slice(-2)
-  ].join('');;
+  ].join('');
+  
   try{
     const registContent = await db.sequelize.query(`INSERT INTO Contents(user_id, category_id, title, color_code, comment, record_ymd, createdAt, updatedAt)VALUES(${user_id}, ${category_id}, '${title}', '#${color_code}', '${comment}', '${record_ymd}', '${createdAt}', '${createdAt}');`,{type: sequelize.QueryTypes.INSERT});
-    console.log(registContent);
     res.send([registContent[0]]);
   }catch(e){
     console.error(e);
