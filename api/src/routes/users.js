@@ -30,7 +30,6 @@ router.get('/signUp', async function(req, res, next) {
   const password = req.query.password;
   const repassword = req.query.repassword;
   console.log(user_name,password);
-  // const password = req.body.password;
   const hashPassword = await bcrypt.hash(password, 10);
   const user = await db.User.findAll({where: {
       user_name: user_name,
@@ -50,10 +49,6 @@ router.get('/signUp', async function(req, res, next) {
       res.send([newUser.id]);
   } else {
     res.status(404).send({ERROR_MESSAGE: 'password unmatched'});
-    // res.render("signup", {
-    //   title: "Sign up",
-    //   errorMessage: ["パスワードが一致しません"],
-    // });
   }
 });
 module.exports = router;
