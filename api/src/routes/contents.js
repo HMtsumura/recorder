@@ -2,11 +2,15 @@ const express = require('express');
 const { sequelize } = require('../models');
 const router = express.Router();
 const db = require('../models');
+const verifyToken = require("../middlewares/verifyToken");
 
 /* GET home page. */
-router.get('/', async function(req, res, next) {
-  const user_id = req.query.user_id;
-  console.log(user_id);
+router.post('/', verifyToken, async function(req, res, next) {
+  
+  const user = await db.User.findAll({where: {
+    user_name: req.decoded['user_name']
+  }});
+  
   const contents = await db.sequelize.query(`select 
                                               co.id
                                             , co.title
@@ -21,13 +25,13 @@ router.get('/', async function(req, res, next) {
                                         ,     Categories ca
                                         where co.user_id = u.id
                                         and   co.category_id = ca.id
-                                        and   co.user_id = '${user_id}';`);
+                                        and   co.user_id = '${user[0].id}';`);
 
   const categories = await db.sequelize.query(`select 
                                                 ca.id AS value
                                               , ca.category_name as label
                                               from  Categories  AS  ca
-                                              where ca.user_id  = '${user_id}';`);
+                                              where ca.user_id  = '${user[0].id}';`);
   res.send([contents[0], categories[0]]);
 });
 
@@ -56,7 +60,7 @@ router.get('/categorized', async function(req, res, next) {
                                               , ca.category_name  AS label
                                               from  Categories  AS  ca
                                               where ca.user_id  = '${user_id}';`);
-  console.log(contents);
+  // console.log(contents);
   res.send([contents[0], categories[0]]);
 });
 
@@ -77,7 +81,7 @@ router.get('/contentById', async function(req, res, next) {
                                         where co.user_id = u.id
                                         and   co.category_id = ca.id
                                         and   co.id = '${content_id}';`);
-  console.log(contents);
+  // console.log(contents);
   res.send([contents[0]]);
 });
 

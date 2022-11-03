@@ -22,8 +22,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 const schema = yup.object().shape({
   email: yup
     .string()
-    .required('required'),
-    // .email('wrong email address'),
+    .required('required')
+    .email('wrong email address'),
   password: yup
     .string()
     .required('required')
@@ -34,7 +34,7 @@ const schema = yup.object().shape({
     // ),
 });
 
-const signUp = 'http://localhost:3000/users/signIn';
+const signIn = 'http://localhost:3000/users/signIn';
 
 // フォームの型
 interface SignInFormInput {
@@ -62,14 +62,14 @@ export default function SignIn() {
 
   // フォーム送信時の処理
   const onSubmit: SubmitHandler<SignInFormInput> = (data, event) => {
-    axios.get(signUp, {
+    axios.get(signIn, {
       params: {
         user_name: data.email,
         password: data.password,
       }
     }).then((res) => {
       console.log(res);
-      navigate('/', {state: res.data[0]});
+      navigate('/', {state: {token: res.data['token']}});
     }).catch((e) => {
       console.error(e);
     });

@@ -9,8 +9,9 @@ import { MyGlobalContext, useOepnRegistForm } from '../contexts/openRegistForm'
 import { createColor } from 'material-ui-color';
 import Select from 'react-select';
 import FormControl from '@mui/material/FormControl';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MenuBar from './MenuBar';
+import { string } from 'yup';
 
 interface recordObj {
     id: string,
@@ -22,6 +23,15 @@ interface recordObj {
     record_ymd: string
 }
 
+type param = {
+    id: string,
+    token: string
+}
+
+type State = {
+    token: string
+}
+
 const getContents = 'http://localhost:3000/contents';
 const contentById = 'http://localhost:3000/contents/contentById';
 const categorizedContents = 'http://localhost:3000/contents/categorized';
@@ -29,6 +39,8 @@ const categorizedContents = 'http://localhost:3000/contents/categorized';
 export default function Calender() {
     const ctx = useOepnRegistForm();
     const location = useLocation();
+    const navigate = useNavigate();
+    const state = location.state as State;
     const [selectedCategoryName, setSelectedCategoryName] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
@@ -44,18 +56,26 @@ export default function Calender() {
     });
 
     function getAllContents() {
-        axios.get(getContents,{
-            params:{
-                user_id: location.state
-            }
-        })
+        // axios.get(getContents, {
+        //     params: {
+        //         user_id: state['userId'],
+        //         token: state['token']
+        //     }
+        // })
+        axios.post(getContents, {
+            token: state['token']
+        },
+            {
+                headers: { Authorization: `Bearer ${state['token']}` },
+            })
             .then((res) => {
-                console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);
                 ctx.setCategories(res.data[1]);
             })
             .catch((e) => {
-                console.error(e);
+                if (e.response.status === 403) {
+                    navigate('/signin');
+                }
             });
     };
 

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models');
+const verifyToken = require("../middlewares/verifyToken");
 
 /* GET home page. */
-router.get('/', async function(req, res, next) {
+router.post('/', verifyToken, async function(req, res, next) {
   const contents = await db.sequelize.query(`select 
                                               co.id
                                             , co.title
@@ -19,9 +20,9 @@ router.get('/', async function(req, res, next) {
                                         and   co.category_id = ca.id;`);
 
   const categories = await db.sequelize.query('select * from Categories');
-  console.log(categories);
+  // console.log(categories);
   Object.keys(contents).forEach(key =>{
-    console.log(key);
+    // console.log(key);
     contents[key].forEach(content=>{
       console.log(contents[0]);
     });

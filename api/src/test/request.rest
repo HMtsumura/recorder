@@ -1,0 +1,7 @@
+# GET http://localhost:3000/users/contents
+POST http://localhost:3000/contents
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0IiwiaWF0IjoxNjY3NDU5NDI0LCJleHAiOjE2Njc0NjA2MjR9.CN1Z5BKTUkTcU7EHyQ73hoHV3AehpJzkDrsP1qwZWkY"
+}

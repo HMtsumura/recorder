@@ -38,10 +38,9 @@ router.get('/regist', async function(req, res, next) {
                                                          WHERE
                                                             user_id = ${user_id};`
                                                         ,{type: sequelize.QueryTypes.SELECT}
-                                                    );
-                                                
-      console.log(registCategory);
-      console.log(selectCategories);
+                                                    );           
+      // console.log(registCategory);
+      // console.log(selectCategories);
       res.send([selectCategories, registCategory]);
     }catch(e){
       console.error(e);
