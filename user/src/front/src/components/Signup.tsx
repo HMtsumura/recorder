@@ -98,7 +98,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
+          <Box component="form" sx={{ mt: 1 }}>
           <Controller
               name="email"
               control={control}
