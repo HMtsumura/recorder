@@ -41,7 +41,7 @@ export default function EditForm() {
     const navigate = useNavigate();
     const state = location.state as State;
     ctx.setToken(state['token']);
-    console.log(ctx);
+
     function handleEdit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         let ymd;

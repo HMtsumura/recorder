@@ -11,7 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import CreatableSelect from 'react-select/creatable';
 import { MyGlobalContext } from '../contexts/openRegistForm';
 import { createColor } from 'material-ui-color';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -36,10 +36,10 @@ type State = {
 export default function RegistForm() {
     const ctx = useContext(MyGlobalContext);
     const location = useLocation();
+    const navigate = useNavigate();
     const state = location.state as State;
-    
     ctx.setToken(state.token);
-    console.log(ctx.token);
+
     function handleRegist(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         let ymd;
@@ -65,7 +65,9 @@ export default function RegistForm() {
             handleCloseForm();
             getAllContents();
         }).catch((e) => {
-            console.error(e);
+            if (e.response.status === 403) {
+                navigate('/signin');
+            }
         });
     }
 
@@ -89,7 +91,9 @@ export default function RegistForm() {
                 ctx.setCategories(res.data[1]);
             })
             .catch((e) => {
-                console.error(e);
+                if (e.response.status === 403) {
+                    navigate('/signin');
+                }
             });
     }
 
