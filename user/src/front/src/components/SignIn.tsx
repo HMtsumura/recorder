@@ -62,7 +62,7 @@ export default function SignIn() {
 
   // フォーム送信時の処理
   const onSubmit: SubmitHandler<SignInFormInput> = (data, event) => {
-    axios.get(signIn, {
+    axios.post(signIn, {
       params: {
         user_name: data.email,
         password: data.password,

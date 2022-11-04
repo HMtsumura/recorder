@@ -11,15 +11,15 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-router.get('/signIn', async function (req, res) {
-  const user_name = req.query.user_name;
-  const password = req.query.password;
+router.post('/signIn', async function (req, res) {
+  const user_name = req.body.params.user_name;
+  const password = req.body.params.password;
   const user = await db.User.findAll({
     where: {
       user_name: user_name,
     }
   });
-
+  console.log(user[0]);
   if (user.length !== 0) {
     if (bcrypt.compareSync(password, user[0].password)) {
       const payload = {
@@ -55,9 +55,8 @@ router.post('/signUp', async function (req, res, next) {
   const user_name = req.body.params.user_name;
   const password = req.body.params.password;
   const repassword = req.body.params.repassword;
-  console.log(user_name,password);
+  
   try {
-    const hashPassword = await bcrypt.hash(password, 10);
     const user = await db.User.findAll({
       where: {
         user_name: user_name,
