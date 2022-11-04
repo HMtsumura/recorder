@@ -12,10 +12,13 @@ export default function DeleteButton() {
     const ctx = useContext(MyGlobalContext);
 
     function handleDelete() {
-        axios.get(deleteContent, {
+        axios.post(deleteContent, {
             params: {
                 content_id: ctx.contentId,
             }
+        },
+        {
+            headers: { Authorization: `Bearer ${ctx.token}` },
         }).then((res) => {
             handleCloseForm();
             getAllContents();
@@ -34,11 +37,14 @@ export default function DeleteButton() {
     };
 
     function getAllContents() {
-        axios.get(getContents,{
-            params:{
+        axios.post(getContents, {
+            params: {
                 token: ctx.token
             }
-        })
+        },
+            {
+                headers: { Authorization: `Bearer ${ctx.token}` },
+            })
             .then((res) => {
                 console.log(res.data[1]);
                 ctx.setRecords(res.data[0]);

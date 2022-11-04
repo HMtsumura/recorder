@@ -37,7 +37,9 @@ export default function RegistForm() {
     const ctx = useContext(MyGlobalContext);
     const location = useLocation();
     const state = location.state as State;
-    ctx.setToken(state['token']);
+    
+    ctx.setToken(state.token);
+    console.log(ctx.token);
     function handleRegist(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         let ymd;

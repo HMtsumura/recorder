@@ -60,7 +60,6 @@ router.get('/categorized', async function(req, res, next) {
                                               , ca.category_name  AS label
                                               from  Categories  AS  ca
                                               where ca.user_id  = '${user_id}';`);
-  // console.log(contents);
   res.send([contents[0], categories[0]]);
 });
 
@@ -81,7 +80,6 @@ router.get('/contentById', async function(req, res, next) {
                                         where co.user_id = u.id
                                         and   co.category_id = ca.id
                                         and   co.id = '${content_id}';`);
-  // console.log(contents);
   res.send([contents[0]]);
 });
 
@@ -112,15 +110,13 @@ router.post('/regist', verifyToken, async function(req, res, next) {
   }
 });
 
-router.get('/edit', async function(req, res, next) {
-  const user_id = req.query.user_id;
-  console.log('user_id', user_id);
-  const content_id = req.query.content_id;
-  const title = req.query.title;
-  const comment = req.query.comment;
-  const category_id = req.query.category_id;
-  const record_ymd =  req.query.record_ymd;
-  const color_code = req.query.color_code;
+router.post('/edit', verifyToken, async function(req, res, next) {
+  const content_id = req.body.params.content_id;
+  const title = req.body.params.title;
+  const comment = req.body.params.comment;
+  const category_id = req.body.params.category_id;
+  const record_ymd =  req.body.params.record_ymd;
+  const color_code = req.body.params.color_code;
   const today = new Date();
   const updatedAt = [
     today.getFullYear(),
@@ -137,15 +133,14 @@ router.get('/edit', async function(req, res, next) {
                                     record_ymd  = '${record_ymd}',
                                     updatedAt = '${updatedAt}'
                                 WHERE id  = ${content_id};`,{type: sequelize.QueryTypes.UPDATE});
-    console.log(editContent);
     res.send([editContent[0]]);
   }catch(e){
     console.error(e);
   }
 });
 
-router.get('/delete', async function(req, res, next) {
-  const content_id = req.query.content_id;
+router.post('/delete', verifyToken, async function(req, res, next) {
+  const content_id = req.body.params.content_id;
   try{
     const deleteContent = await db.sequelize.query(`
                                 DELETE  FROM Contents

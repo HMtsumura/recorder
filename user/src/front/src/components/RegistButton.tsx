@@ -3,12 +3,15 @@ import axios from 'axios';
 import Button from '@mui/material/Button';
 import { MyGlobalContext } from '../contexts/openRegistForm';
 import { createColor } from 'material-ui-color';
+import { useNavigate } from "react-router-dom";
+
 
 const registContent = 'http://localhost:3000/contents/regist';
 const getContents = 'http://localhost:3000/contents';
 
 export default function RegistButton() {
     const ctx = useContext(MyGlobalContext);
+    const navigate = useNavigate();
 
     function handleClick(event: any) {
         event.preventDefault();
@@ -39,7 +42,9 @@ export default function RegistButton() {
                 getAllContents();
                 console.log(res);
             }).catch((e) => {
-                console.error(e);
+                if (e.response.status === 403) {
+                    navigate('/signin');
+                }
             });
     }
 
@@ -65,7 +70,9 @@ export default function RegistButton() {
                 ctx.setCategories(res.data[1]);
             })
             .catch((e) => {
-                console.error(e);
+                if (e.response.status === 403) {
+                    navigate('/signin');
+                }
             });
     }
 

@@ -13,7 +13,7 @@ import TitleInput from './TitleInput';
 import CommentInput from './CommentInput';
 import DeleteButton from './DeleteButton';
 import EditButton from './EditButton';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -31,10 +31,16 @@ const editContent = 'http://localhost:3000/contents/edit';
 const registCategory = 'http://localhost:3000/categories/regist';
 const getContents = 'http://localhost:3000/contents';
 
+type State = {
+    token: string
+}
+
 export default function EditForm() {
     const ctx = useContext(MyGlobalContext);
     const location = useLocation();
-    ctx.setToken(location.state as string);
+    const navigate = useNavigate();
+    const state = location.state as State;
+    ctx.setToken(state['token']);
     console.log(ctx);
     function handleEdit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -50,7 +56,7 @@ export default function EditForm() {
         }
 
         const formData = new FormData(event.currentTarget);
-        axios.get(editContent, {
+        axios.post(editContent, {
             params: {
                 content_id: ctx.contentId,
                 title: formData.get('title'),
@@ -60,11 +66,17 @@ export default function EditForm() {
                 category_id: ctx.categoryId,
                 token: ctx.token
             }
-        }).then((res) => {
+        },
+            {
+                headers: { Authorization: `Bearer ${ctx.token}` },
+            }
+        ).then((res) => {
             handleCloseForm();
             getAllContents();
         }).catch((e) => {
-            console.error(e);
+            if (e.response.status === 403) {
+                navigate('/signin');
+            }
         });
     }
 
@@ -78,10 +90,12 @@ export default function EditForm() {
     };
 
     function getAllContents() {
-        axios.get(getContents,{
-            params:{
+        axios.post(getContents, {
+            params: {
                 token: ctx.token
             }
+        }, {
+            headers: { Authorization: `Bearer ${ctx.token}` },
         })
             .then((res) => {
                 console.log(res.data[1]);
@@ -89,24 +103,29 @@ export default function EditForm() {
                 ctx.setCategories(res.data[1]);
             })
             .catch((e) => {
-                console.error(e);
+                if (e.response.status === 403) {
+                    navigate('/signin');
+                }
             });
     }
 
     function handleRegistCategoryChange(event: any) {
         if (event != null) {
             if (event.__isNew__) {
-                axios.get(registCategory, {
+                axios.post(registCategory, {
                     params: {
                         token: ctx.token,
                         category_name: event.label,
                     }
-                }).then((res) => {
-                    ctx.setCategories(res.data[0]);
-                    ctx.setCategoryId(res.data[1][0]);
-                }).catch((e) => {
-                    console.error(e);
-                });
+                },
+                    {
+                        headers: { Authorization: `Bearer ${ctx.token}` },
+                    }).then((res) => {
+                        ctx.setCategories(res.data[0]);
+                        ctx.setCategoryId(res.data[1][0]);
+                    }).catch((e) => {
+                        console.error(e);
+                    });
                 ctx.setCategoryName(event.label);
             } else {
                 ctx.setCategoryName(event.label);
@@ -132,7 +151,7 @@ export default function EditForm() {
                         menu: provided => ({ ...provided, zIndex: 9999 })
                     }}
                     onChange={handleRegistCategoryChange}
-                    value={{value: ctx.categoryId, label: ctx.categoryName}}
+                    value={{ value: ctx.categoryId, label: ctx.categoryName }}
                 ></Select>
                 <ColorPallete />
                 <TitleInput />
