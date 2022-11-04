@@ -77,12 +77,12 @@ export default function RegistForm() {
     };
 
     function getAllContents() {
-        axios.get(getContents,{
-            params:{
+        axios.get(getContents, {
+            params: {
                 user_id: location.state
             }
         })
-            .then((res) => { 
+            .then((res) => {
                 ctx.setRecords(res.data[0]);
                 ctx.setCategories(res.data[1]);
             })
@@ -94,11 +94,14 @@ export default function RegistForm() {
     function handleRegistCategoryChange(event: any) {
         if (event != null) {
             if (event.__isNew__) {
-                axios.get(registCategory, {
+                axios.post(registCategory, {
                     params: {
                         token: ctx.token,
                         category_name: event.label,
                     }
+                }, 
+                {
+                    headers: { Authorization: `Bearer ${ctx.token}` },
                 }).then((res) => {
                     ctx.setCategories(res.data[0]);
                     ctx.setCategoryId(res.data[1][0]);
