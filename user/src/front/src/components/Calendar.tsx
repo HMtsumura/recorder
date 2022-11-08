@@ -67,7 +67,7 @@ export default function Calender() {
                 ctx.setCategories(res.data[1]);
             })
             .catch((e) => {
-                if (e.response.status === 403) {
+                if (e.response.status === 401 || e.response.status === 403) {
                     navigate('/signin');
                 }
             });
@@ -109,10 +109,13 @@ export default function Calender() {
     }
 
     function handleEventClick(event: any) {
-        axios.get(contentById, {
+        axios.post(contentById, {
             params: {
                 content_id: event.event.id,
             }
+        },
+        {
+            headers: { Authorization: `Bearer ${ctx['token']}` },
         }).then((res) => {
             const record: recordObj = res.data[0][0];
             const y = record.record_ymd.split('-')[0]
@@ -128,7 +131,9 @@ export default function Calender() {
             ctx.setColor(createColor(record.color_code));
             ctx.setDate(`${m}-${d}-${y}`);
         }).catch((e) => {
-            console.error(e);
+            if (e.response.status === 401 || e.response.status === 403) {
+                navigate('/signin');
+            }
         });
     }
 

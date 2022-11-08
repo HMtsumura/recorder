@@ -63,8 +63,8 @@ router.post('/categorized', verifyToken, async function(req, res, next) {
   res.send([contents[0], categories[0]]);
 });
 
-router.get('/contentById', async function(req, res, next) {
-  const content_id = req.query.content_id;
+router.post('/contentById', verifyToken, async function(req, res, next) {
+  const content_id = req.body.params.content_id;
   const contents = await db.sequelize.query(`select 
                                               co.id
                                             , co.title
