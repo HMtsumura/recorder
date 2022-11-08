@@ -74,6 +74,8 @@ export default function Calender() {
     };
 
     useEffect(() => {
+        ctx.setToken(state['token']);
+        console.log(ctx.token);
         getAllContents();
     }, []);
 
@@ -86,22 +88,23 @@ export default function Calender() {
             const selectedId: string = event.value;
             setSelectedCategoryId(event.value);
             setSelectedCategoryName(event.label);
-            axios.get(categorizedContents, {
+            axios.post(categorizedContents, {
                 params: {
                     id: selectedId,
-                    user_id: location.state
+                    token: ctx.token
                 }
-            }).then((res) => {
-                console.log(res.data[1]);
-                ctx.setRecords(res.data[0]);
-                ctx.setCategories(res.data[1]);
-            }).catch((e) => {
-                console.error(e);
-                // this.setState({
-                //   status: false,
-                //   result: e,
-                // });
-            });
+            },
+                {
+                    headers: { Authorization: `Bearer ${ctx.token}` },
+                }).then((res) => {
+                    console.log(res.data[1]);
+                    ctx.setRecords(res.data[0]);
+                    ctx.setCategories(res.data[1]);
+                }).catch((e) => {
+                    if (e.response.status === 401 || e.response.status === 403) {
+                        navigate('/signin');
+                    }
+                });
         }
     }
 

@@ -35,9 +35,9 @@ router.post('/', verifyToken, async function(req, res, next) {
   res.send([contents[0], categories[0]]);
 });
 
-router.get('/categorized', async function(req, res, next) {
-  const category_id = req.query.id;
-  const user_id = req.query.user_id;
+router.post('/categorized', verifyToken, async function(req, res, next) {
+  const category_id = req.body.params.id;
+  const user_id = req.decoded['userId'];
   const contents = await db.sequelize.query(`select 
                                               co.id
                                             , co.title

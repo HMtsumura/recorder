@@ -52,15 +52,17 @@ export default function RegistForm() {
             ymd = y + '-' + m + '-' + d;
         }
         const formData = new FormData(event.currentTarget);
-        axios.get(registContent, {
+        axios.post(registContent, {
             params: {
-                token: ctx.token,
                 title: formData.get('title'),
                 comment: formData.get('comment'),
                 color_code: ctx.color.hex,
                 record_ymd: ymd,
                 category_id: ctx.categoryId
             }
+        },
+        {
+            headers: { Authorization: `Bearer ${ctx.token}` },
         }).then((res) => {
             handleCloseForm();
             getAllContents();

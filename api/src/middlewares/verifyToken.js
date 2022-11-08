@@ -4,7 +4,6 @@ const config = require("../config/jwt.config");
 function verifyToken(req, res, next) { 
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
-  console.log(token);
   if (token) {
     jwt.verify(token, config.jwt.secret, function (error, decoded) {
       if (error) {
