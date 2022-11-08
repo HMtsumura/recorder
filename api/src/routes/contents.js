@@ -6,11 +6,7 @@ const verifyToken = require("../middlewares/verifyToken");
 
 /* GET home page. */
 router.post('/', verifyToken, async function(req, res, next) {
-  
-  const user = await db.User.findAll({where: {
-    user_name: req.decoded['user_name']
-  }});
-  
+  const userId = req.decoded['userId'];
   const contents = await db.sequelize.query(`select 
                                               co.id
                                             , co.title
@@ -25,13 +21,13 @@ router.post('/', verifyToken, async function(req, res, next) {
                                         ,     Categories ca
                                         where co.user_id = u.id
                                         and   co.category_id = ca.id
-                                        and   co.user_id = '${user[0].id}';`);
+                                        and   co.user_id = '${userId}';`);
 
   const categories = await db.sequelize.query(`select 
                                                 ca.id AS value
                                               , ca.category_name as label
                                               from  Categories  AS  ca
-                                              where ca.user_id  = '${user[0].id}';`);
+                                              where ca.user_id  = '${userId}';`);
   res.send([contents[0], categories[0]]);
 });
 
@@ -84,12 +80,8 @@ router.post('/contentById', verifyToken, async function(req, res, next) {
 });
 
 router.post('/regist', verifyToken, async function(req, res, next) {
-  const user = await db.User.findAll({where: {
-    user_name: req.decoded['user_name']
-  }});
   
-  const user_id = user[0].id;
-
+  const user_id = req.decoded['userId'];
   const title = req.body.params.title;
   const comment = req.body.params.comment;
   const category_id = req.body.params.category_id;
