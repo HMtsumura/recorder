@@ -74,8 +74,7 @@ export default function Calender() {
     };
 
     useEffect(() => {
-        ctx.setToken(state['token']);
-        console.log(ctx.token);
+        ctx.setToken(state['token']);        
         getAllContents();
     }, []);
 
